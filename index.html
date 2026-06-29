@@ -255,25 +255,44 @@
 
 
 
-    /* ===== Carte personnalisée zone d'intervention ===== */
+    /* ===== Carte personnalisée style Google Maps ===== */
     .addressBox{display:grid;grid-template-columns:1fr 1.35fr;gap:18px;align-items:stretch;margin-top:18px}
     .customMapWrap{overflow:hidden;border-radius:var(--radius);border:1px solid var(--border);box-shadow:var(--shadow);background:#fff}
     .customMapHead{padding:16px 16px 0}
     .customMapHead h3{margin:0 0 6px}
-    .customMap{position:relative;padding:10px 12px 14px;background:linear-gradient(180deg,#ffffff,#f8fafc)}
-    .idfMap{width:100%;height:auto;display:block;min-height:360px}
-    .deptShape{fill:#dbeafe;stroke:#2563eb;stroke-width:3;filter:drop-shadow(0 6px 8px rgba(37,99,235,.12))}
-    .deptShape.paris{fill:#1d4ed8}
-    .deptShape.active{fill:#2563eb}
-    .deptLabel{font-weight:1000;font-size:22px;fill:#fff;text-anchor:middle;dominant-baseline:middle;paint-order:stroke;stroke:#0f172a;stroke-width:3px}
-    .deptName{font-weight:900;font-size:13px;fill:#0f172a;text-anchor:middle;dominant-baseline:middle}
-    .pin{font-size:30px}
-    .pinLabel{font-weight:1000;font-size:15px;fill:#0f172a;text-anchor:middle}
+    .customMap{
+      position:relative;
+      margin:12px;
+      overflow:hidden;
+      border-radius:18px;
+      border:1px solid #dbe3ea;
+      background:#e8f0e6;
+      box-shadow:inset 0 0 0 1px rgba(255,255,255,.55);
+    }
+    .idfMap{width:100%;height:auto;display:block;min-height:390px;background:#e8f0e6}
+    .mapLand{fill:#e8f0e6}
+    .mapPark{fill:#d7ead0;opacity:.95}
+    .mapWater{fill:#b9d9f5;opacity:.95}
+    .mapRoadMinor{fill:none;stroke:#ffffff;stroke-width:7;stroke-linecap:round;opacity:.95}
+    .mapRoadMinorLine{fill:none;stroke:#d7dde3;stroke-width:1.4;stroke-linecap:round;opacity:.75}
+    .mapRoadMajor{fill:none;stroke:#f8d56b;stroke-width:12;stroke-linecap:round;opacity:.9}
+    .mapRoadMajorLine{fill:none;stroke:#e0b94a;stroke-width:2;stroke-linecap:round;opacity:.75}
+    .deptArea{fill:#1a73e8;fill-opacity:.24;stroke:#1a73e8;stroke-width:3;stroke-linejoin:round;filter:drop-shadow(0 2px 3px rgba(26,115,232,.12))}
+    .deptArea.paris{fill-opacity:.48;stroke-width:4}
+    .deptText{font-weight:900;font-size:22px;fill:#174ea6;text-anchor:middle;dominant-baseline:middle;paint-order:stroke;stroke:#fff;stroke-width:5px}
+    .deptName{font-weight:850;font-size:12.5px;fill:#2f3b45;text-anchor:middle;dominant-baseline:middle;paint-order:stroke;stroke:#fff;stroke-width:4px}
+    .placeName{font-weight:800;font-size:13px;fill:#5f6368;text-anchor:middle;paint-order:stroke;stroke:#fff;stroke-width:4px}
+    .pinDot{fill:#ea4335;stroke:#fff;stroke-width:4;filter:drop-shadow(0 4px 5px rgba(0,0,0,.25))}
+    .pinStem{fill:#ea4335;stroke:#fff;stroke-width:3;filter:drop-shadow(0 4px 5px rgba(0,0,0,.20))}
+    .pinLabelBox{fill:#fff;stroke:#dadce0;stroke-width:1.5;filter:drop-shadow(0 3px 8px rgba(60,64,67,.22))}
+    .pinLabelText{font-weight:1000;font-size:14px;fill:#202124;text-anchor:middle}
+    .mapControls{position:absolute;right:12px;top:12px;display:flex;flex-direction:column;gap:8px}
+    .mapCtrl{width:36px;height:36px;border-radius:8px;background:#fff;border:1px solid #dadce0;box-shadow:0 1px 4px rgba(60,64,67,.25);display:flex;align-items:center;justify-content:center;font-weight:1000;color:#3c4043}
     .mapLegend{display:flex;gap:8px;flex-wrap:wrap;padding:0 16px 12px}
-    .mapPill{border:1px solid rgba(37,99,235,.25);background:#eff6ff;color:#1e3a8a;border-radius:999px;padding:8px 10px;font-weight:900;font-size:.92rem}
+    .mapPill{border:1px solid #d2e3fc;background:#e8f0fe;color:#174ea6;border-radius:999px;padding:8px 10px;font-weight:900;font-size:.92rem}
     .googleMapLink{padding:10px 12px;margin:0;border-top:1px solid var(--border);background:#fff}
-    @media(max-width:980px){.addressBox{grid-template-columns:1fr}.idfMap{min-height:300px}}
-    @media(max-width:520px){.deptName{font-size:11px}.deptLabel{font-size:18px}.pinLabel{font-size:12px}.customMap{padding:6px}}
+    @media(max-width:980px){.addressBox{grid-template-columns:1fr}.idfMap{min-height:330px}}
+    @media(max-width:520px){.deptName{font-size:10.5px}.deptText{font-size:17px}.placeName{font-size:11px}.pinLabelText{font-size:12px}.customMap{margin:8px}.mapControls{display:none}}
 
     footer{background:#0f172a;color:#fff;padding:26px 0;margin-top:40px}
     footer a{color:#fff;text-decoration:underline}
@@ -754,43 +773,67 @@ font-weight:700;
 
         <div class="customMap">
           <svg class="idfMap" viewBox="0 0 760 520" role="img" aria-labelledby="mapTitle mapDesc">
-            <title id="mapTitle">Carte personnalisée J2B Couverture Paris et Île-de-France</title>
-            <desc id="mapDesc">Départements 75, 77, 78, 92 et 94 colorés en bleu, avec adresse du bureau au 81 rue de l’Assomption 75016 Paris.</desc>
+            <title id="mapTitle">Carte d’intervention J2B Couverture style Google Maps</title>
+            <desc id="mapDesc">Carte stylisée façon Google Maps avec les départements 75, 77, 78, 92 et 94 en bleu et le bureau au 81 rue de l’Assomption 75016 Paris.</desc>
 
-            <!-- Seine-et-Marne 77 -->
-            <path class="deptShape active" d="M430 72 L655 92 L704 185 L680 300 L720 388 L620 470 L470 436 L392 348 L426 260 L390 178 Z"></path>
-            <text class="deptLabel" x="570" y="255">77</text>
-            <text class="deptName" x="570" y="288">Seine-et-Marne</text>
+            <rect class="mapLand" x="0" y="0" width="760" height="520"></rect>
 
-            <!-- Yvelines 78 -->
-            <path class="deptShape active" d="M78 150 L228 92 L348 145 L330 245 L256 315 L145 300 L72 230 Z"></path>
-            <text class="deptLabel" x="205" y="205">78</text>
-            <text class="deptName" x="205" y="238">Yvelines</text>
+            <!-- zones vertes / eau pour un rendu carte -->
+            <path class="mapPark" d="M30 42 C130 10 165 92 250 62 C350 28 406 48 468 24 C566 -8 670 20 730 86 L730 0 L30 0 Z"></path>
+            <path class="mapPark" d="M24 372 C112 330 192 376 276 344 C360 312 435 350 525 320 C625 286 690 320 744 372 L744 520 L24 520 Z"></path>
+            <path class="mapWater" d="M0 290 C96 252 158 300 244 262 C342 218 421 282 520 238 C612 198 686 224 760 176 L760 214 C688 262 606 236 524 276 C430 322 338 262 252 306 C158 352 90 308 0 348 Z"></path>
 
-            <!-- Hauts-de-Seine 92 -->
-            <path class="deptShape active" d="M286 196 L350 172 L384 222 L365 294 L300 310 L260 265 Z"></path>
-            <text class="deptLabel" x="325" y="244">92</text>
-            <text class="deptName" x="325" y="274">Hauts-de-Seine</text>
+            <!-- routes principales -->
+            <path class="mapRoadMajor" d="M48 160 C145 142 220 172 300 220 C380 268 466 278 556 250 C622 230 676 196 736 176"></path>
+            <path class="mapRoadMajorLine" d="M48 160 C145 142 220 172 300 220 C380 268 466 278 556 250 C622 230 676 196 736 176"></path>
+            <path class="mapRoadMajor" d="M112 468 C180 378 226 318 320 276 C422 230 500 152 612 84"></path>
+            <path class="mapRoadMajorLine" d="M112 468 C180 378 226 318 320 276 C422 230 500 152 612 84"></path>
 
-            <!-- Paris 75 -->
-            <path class="deptShape paris" d="M372 202 L420 215 L432 258 L398 288 L356 270 L348 230 Z"></path>
-            <text class="deptLabel" x="391" y="246">75</text>
+            <!-- routes secondaires -->
+            <path class="mapRoadMinor" d="M64 92 C146 124 232 112 312 142 C418 182 486 172 588 142 C640 126 690 116 738 126"></path>
+            <path class="mapRoadMinorLine" d="M64 92 C146 124 232 112 312 142 C418 182 486 172 588 142 C640 126 690 116 738 126"></path>
+            <path class="mapRoadMinor" d="M50 412 C146 400 210 420 304 386 C404 350 498 384 610 356 C666 342 710 350 752 374"></path>
+            <path class="mapRoadMinorLine" d="M50 412 C146 400 210 420 304 386 C404 350 498 384 610 356 C666 342 710 350 752 374"></path>
+            <path class="mapRoadMinor" d="M210 34 C248 112 258 196 304 264 C344 324 350 400 330 500"></path>
+            <path class="mapRoadMinorLine" d="M210 34 C248 112 258 196 304 264 C344 324 350 400 330 500"></path>
+            <path class="mapRoadMinor" d="M476 20 C442 110 442 188 468 266 C492 338 552 404 590 500"></path>
+            <path class="mapRoadMinorLine" d="M476 20 C442 110 442 188 468 266 C492 338 552 404 590 500"></path>
 
-            <!-- Val-de-Marne 94 -->
-            <path class="deptShape active" d="M392 282 L470 286 L512 350 L456 414 L372 388 L342 322 Z"></path>
-            <text class="deptLabel" x="430" y="344">94</text>
-            <text class="deptName" x="430" y="374">Val-de-Marne</text>
+            <!-- départements colorés -->
+            <path class="deptArea" d="M430 72 L655 92 L704 185 L680 300 L720 388 L620 470 L470 436 L392 348 L426 260 L390 178 Z"></path>
+            <path class="deptArea" d="M78 150 L228 92 L348 145 L330 245 L256 315 L145 300 L72 230 Z"></path>
+            <path class="deptArea" d="M286 196 L350 172 L384 222 L365 294 L300 310 L260 265 Z"></path>
+            <path class="deptArea paris" d="M372 202 L420 215 L432 258 L398 288 L356 270 L348 230 Z"></path>
+            <path class="deptArea" d="M392 282 L470 286 L512 350 L456 414 L372 388 L342 322 Z"></path>
 
-            <!-- Repères proches non colorés pour donner un effet carte -->
-            <path d="M238 318 L335 310 L372 388 L322 454 L195 430 L150 330 Z" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="2"></path>
-            <text class="deptName" x="260" y="383" fill="#64748b">91</text>
-            <path d="M250 90 L390 70 L430 72 L390 178 L348 145 Z" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="2"></path>
-            <text class="deptName" x="345" y="115" fill="#64748b">95</text>
+            <!-- noms de villes façon Google Maps -->
+            <text class="placeName" x="392" y="235">Paris</text>
+            <text class="placeName" x="155" y="212">Versailles</text>
+            <text class="placeName" x="327" y="282">Clamart</text>
+            <text class="placeName" x="455" y="345">Créteil</text>
+            <text class="placeName" x="610" y="260">Seine-et-Marne</text>
 
-            <!-- Adresse du bureau -->
-            <text class="pin" x="384" y="207" text-anchor="middle">📍</text>
-            <text class="pinLabel" x="384" y="184">Bureau Paris 16e</text>
+            <!-- labels départements -->
+            <text class="deptText" x="570" y="292">77</text>
+            <text class="deptText" x="205" y="248">78</text>
+            <text class="deptText" x="322" y="244">92</text>
+            <text class="deptText" x="391" y="260">75</text>
+            <text class="deptText" x="430" y="374">94</text>
+            <text class="deptName" x="570" y="320">Seine-et-Marne</text>
+            <text class="deptName" x="205" y="276">Yvelines</text>
+            <text class="deptName" x="322" y="270">Hauts-de-Seine</text>
+            <text class="deptName" x="430" y="402">Val-de-Marne</text>
+
+            <!-- marqueur bureau -->
+            <path class="pinStem" d="M390 197 C372 197 358 211 358 229 C358 253 390 289 390 289 C390 289 422 253 422 229 C422 211 408 197 390 197 Z"></path>
+            <circle class="pinDot" cx="390" cy="229" r="10"></circle>
+            <rect class="pinLabelBox" x="300" y="156" width="180" height="32" rx="16"></rect>
+            <text class="pinLabelText" x="390" y="177">81 rue de l’Assomption</text>
           </svg>
+          <div class="mapControls" aria-hidden="true">
+            <div class="mapCtrl">+</div>
+            <div class="mapCtrl">−</div>
+          </div>
         </div>
 
         <div class="mapLegend">
