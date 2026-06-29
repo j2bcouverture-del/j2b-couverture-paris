@@ -255,11 +255,25 @@
 
 
 
-    /* ===== Carte Google Maps ===== */
-    .addressBox{display:grid;grid-template-columns:1fr 1.4fr;gap:18px;align-items:stretch;margin-top:18px}
-    .mapWrap{overflow:hidden;border-radius:var(--radius);border:1px solid var(--border);box-shadow:var(--shadow);background:#fff}
-    .mapWrap iframe{width:100%;height:420px;border:0;display:block}
-    @media(max-width:980px){.addressBox{grid-template-columns:1fr}.mapWrap iframe{height:340px}}
+    /* ===== Carte personnalisée zone d'intervention ===== */
+    .addressBox{display:grid;grid-template-columns:1fr 1.35fr;gap:18px;align-items:stretch;margin-top:18px}
+    .customMapWrap{overflow:hidden;border-radius:var(--radius);border:1px solid var(--border);box-shadow:var(--shadow);background:#fff}
+    .customMapHead{padding:16px 16px 0}
+    .customMapHead h3{margin:0 0 6px}
+    .customMap{position:relative;padding:10px 12px 14px;background:linear-gradient(180deg,#ffffff,#f8fafc)}
+    .idfMap{width:100%;height:auto;display:block;min-height:360px}
+    .deptShape{fill:#dbeafe;stroke:#2563eb;stroke-width:3;filter:drop-shadow(0 6px 8px rgba(37,99,235,.12))}
+    .deptShape.paris{fill:#1d4ed8}
+    .deptShape.active{fill:#2563eb}
+    .deptLabel{font-weight:1000;font-size:22px;fill:#fff;text-anchor:middle;dominant-baseline:middle;paint-order:stroke;stroke:#0f172a;stroke-width:3px}
+    .deptName{font-weight:900;font-size:13px;fill:#0f172a;text-anchor:middle;dominant-baseline:middle}
+    .pin{font-size:30px}
+    .pinLabel{font-weight:1000;font-size:15px;fill:#0f172a;text-anchor:middle}
+    .mapLegend{display:flex;gap:8px;flex-wrap:wrap;padding:0 16px 12px}
+    .mapPill{border:1px solid rgba(37,99,235,.25);background:#eff6ff;color:#1e3a8a;border-radius:999px;padding:8px 10px;font-weight:900;font-size:.92rem}
+    .googleMapLink{padding:10px 12px;margin:0;border-top:1px solid var(--border);background:#fff}
+    @media(max-width:980px){.addressBox{grid-template-columns:1fr}.idfMap{min-height:300px}}
+    @media(max-width:520px){.deptName{font-size:11px}.deptLabel{font-size:18px}.pinLabel{font-size:12px}.customMap{padding:6px}}
 
     footer{background:#0f172a;color:#fff;padding:26px 0;margin-top:40px}
     footer a{color:#fff;text-decoration:underline}
@@ -723,19 +737,73 @@ font-weight:700;
           75016 Paris
         </p>
         <p class="muted">
+          Départements d’intervention principaux : <strong>75 • 77 • 78 • 92 • 94</strong>.
           Devis gratuit, déplacement possible selon secteur, intervention rapide pour fuite, zinguerie, rénovation, nettoyage et entretien de toiture.
         </p>
-        <a class="btn red" href="tel:0601462612">📞 Appeler J2B Couverture</a>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px">
+          <a class="btn red" href="tel:0601462612">📞 Appeler J2B Couverture</a>
+          <a class="btn blue" href="https://www.google.com/maps/search/?api=1&query=81%20rue%20de%20l%27Assomption%2075016%20Paris" target="_blank" rel="noopener">📍 Ouvrir dans Google Maps</a>
+        </div>
       </div>
 
-      <div class="mapWrap">
-        <iframe
-          title="Carte J2B Couverture - 81 rue de l’Assomption 75016 Paris"
-          loading="lazy"
-          referrerpolicy="no-referrer-when-downgrade"
-          src="https://www.google.com/maps?q=81%20rue%20de%20l%27Assomption%2C%2075016%20Paris&output=embed">
-        </iframe>
-        <p class="muted small" style="padding:10px 12px;margin:0">Si la carte ne s’affiche pas, <a href="https://www.google.com/maps/search/?api=1&query=81%20rue%20de%20l%27Assomption%2075016%20Paris" target="_blank" rel="noopener" style="text-decoration:underline;font-weight:900">ouvrir l’adresse dans Google Maps</a>.</p>
+      <div class="customMapWrap" aria-label="Carte personnalisée des départements d'intervention J2B Couverture">
+        <div class="customMapHead">
+          <h3>Carte d’intervention</h3>
+          <p class="muted small">Les départements colorés en bleu correspondent aux zones où J2B Couverture intervient principalement.</p>
+        </div>
+
+        <div class="customMap">
+          <svg class="idfMap" viewBox="0 0 760 520" role="img" aria-labelledby="mapTitle mapDesc">
+            <title id="mapTitle">Carte personnalisée J2B Couverture Paris et Île-de-France</title>
+            <desc id="mapDesc">Départements 75, 77, 78, 92 et 94 colorés en bleu, avec adresse du bureau au 81 rue de l’Assomption 75016 Paris.</desc>
+
+            <!-- Seine-et-Marne 77 -->
+            <path class="deptShape active" d="M430 72 L655 92 L704 185 L680 300 L720 388 L620 470 L470 436 L392 348 L426 260 L390 178 Z"></path>
+            <text class="deptLabel" x="570" y="255">77</text>
+            <text class="deptName" x="570" y="288">Seine-et-Marne</text>
+
+            <!-- Yvelines 78 -->
+            <path class="deptShape active" d="M78 150 L228 92 L348 145 L330 245 L256 315 L145 300 L72 230 Z"></path>
+            <text class="deptLabel" x="205" y="205">78</text>
+            <text class="deptName" x="205" y="238">Yvelines</text>
+
+            <!-- Hauts-de-Seine 92 -->
+            <path class="deptShape active" d="M286 196 L350 172 L384 222 L365 294 L300 310 L260 265 Z"></path>
+            <text class="deptLabel" x="325" y="244">92</text>
+            <text class="deptName" x="325" y="274">Hauts-de-Seine</text>
+
+            <!-- Paris 75 -->
+            <path class="deptShape paris" d="M372 202 L420 215 L432 258 L398 288 L356 270 L348 230 Z"></path>
+            <text class="deptLabel" x="391" y="246">75</text>
+
+            <!-- Val-de-Marne 94 -->
+            <path class="deptShape active" d="M392 282 L470 286 L512 350 L456 414 L372 388 L342 322 Z"></path>
+            <text class="deptLabel" x="430" y="344">94</text>
+            <text class="deptName" x="430" y="374">Val-de-Marne</text>
+
+            <!-- Repères proches non colorés pour donner un effet carte -->
+            <path d="M238 318 L335 310 L372 388 L322 454 L195 430 L150 330 Z" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="2"></path>
+            <text class="deptName" x="260" y="383" fill="#64748b">91</text>
+            <path d="M250 90 L390 70 L430 72 L390 178 L348 145 Z" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="2"></path>
+            <text class="deptName" x="345" y="115" fill="#64748b">95</text>
+
+            <!-- Adresse du bureau -->
+            <text class="pin" x="384" y="207" text-anchor="middle">📍</text>
+            <text class="pinLabel" x="384" y="184">Bureau Paris 16e</text>
+          </svg>
+        </div>
+
+        <div class="mapLegend">
+          <span class="mapPill">75 Paris</span>
+          <span class="mapPill">77 Seine-et-Marne</span>
+          <span class="mapPill">78 Yvelines</span>
+          <span class="mapPill">92 Hauts-de-Seine</span>
+          <span class="mapPill">94 Val-de-Marne</span>
+        </div>
+
+        <p class="muted small googleMapLink">
+          Pour l’itinéraire exact, <a href="https://www.google.com/maps/search/?api=1&query=81%20rue%20de%20l%27Assomption%2075016%20Paris" target="_blank" rel="noopener" style="text-decoration:underline;font-weight:900">ouvrir l’adresse dans Google Maps</a>.
+        </p>
       </div>
     </div>
   </div>
