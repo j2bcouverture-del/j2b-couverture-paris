@@ -255,15 +255,21 @@
 
 
 
-    /* ===== Carte interactive zone d’intervention ===== */
+    /* ===== Google Maps / Nous trouver ===== */
     .addressBox{display:grid;grid-template-columns:1fr 1.45fr;gap:18px;align-items:stretch;margin-top:18px}
     .mapWrap{overflow:hidden;border-radius:var(--radius);border:1px solid var(--border);box-shadow:var(--shadow);background:#fff}
-    #idfMap{width:100%;height:450px;display:block}
+    .mapButtons{display:flex;gap:10px;flex-wrap:wrap;padding:12px;background:#fff;border-bottom:1px solid var(--border)}
+    .mapBtn{
+      display:inline-flex;align-items:center;justify-content:center;gap:6px;
+      padding:10px 13px;border-radius:999px;border:1px solid var(--border);
+      background:#fff;color:var(--text);font-weight:1000;cursor:pointer;
+      box-shadow:none;transition:.15s ease;
+    }
+    .mapBtn:hover,.mapBtn.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+    .googleMap{width:100%;height:450px;border:0;display:block}
     .mapLegend{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:10px 12px;margin:0;border-top:1px solid var(--border);background:#fff}
-    .legendDot{width:14px;height:14px;border-radius:4px;background:rgba(37,99,235,.45);border:2px solid #2563eb;display:inline-block}
-    .leaflet-popup-content{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;font-weight:700;color:#0f172a}
-    .leaflet-control-attribution{font-size:10px}
-    @media(max-width:980px){.addressBox{grid-template-columns:1fr}#idfMap{height:360px}}
+    .legendDot{width:14px;height:14px;border-radius:999px;background:#2563eb;display:inline-block}
+    @media(max-width:980px){.addressBox{grid-template-columns:1fr}.googleMap{height:360px}.mapBtn{flex:1 1 calc(50% - 10px)}}
 
     footer{background:#0f172a;color:#fff;padding:26px 0;margin-top:40px}
     footer a{color:#fff;text-decoration:underline}
@@ -387,9 +393,6 @@ font-weight:700;
   </style>
 
 
-  <!-- Carte interactive type Google Maps (Leaflet + OpenStreetMap) -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIINfQGLG8MDR/FyTu4zVDap3E5d1qHYjks=" crossorigin="">
-
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -429,6 +432,7 @@ font-weight:700;
       <div class="menuPanel" id="menuPanel">
         <a class="menuItem" href="#services">Services</a>
         <a class="menuItem" href="#zone">Zone</a>
+        <a class="menuItem" href="#adresse">Nous trouver</a>
         <a class="menuItem" href="#avis">Avis</a>
         <a class="menuItem" href="#simulation">Simulateur</a>
         <a class="menuItem" href="#realisations">Photos</a>
@@ -740,9 +744,26 @@ font-weight:700;
       </div>
 
       <div class="mapWrap">
-        <div id="idfMap" aria-label="Carte des zones d’intervention J2B Couverture"></div>
+        <div class="mapButtons" aria-label="Choisir une zone sur la carte">
+          <button class="mapBtn active" type="button" data-map="81 rue de l’Assomption 75016 Paris">📍 Bureau Paris 16e</button>
+          <button class="mapBtn" type="button" data-map="Paris 75">Paris 75</button>
+          <button class="mapBtn" type="button" data-map="Seine-et-Marne 77">Seine-et-Marne 77</button>
+          <button class="mapBtn" type="button" data-map="Yvelines 78">Yvelines 78</button>
+          <button class="mapBtn" type="button" data-map="Hauts-de-Seine 92">Hauts-de-Seine 92</button>
+          <button class="mapBtn" type="button" data-map="Val-de-Marne 94">Val-de-Marne 94</button>
+        </div>
+
+        <iframe
+          id="googleMap"
+          class="googleMap"
+          title="Google Maps - J2B Couverture"
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+          src="https://www.google.com/maps?q=81%20rue%20de%20l%27Assomption%2075016%20Paris&output=embed">
+        </iframe>
+
         <p class="muted small mapLegend">
-          <span class="legendDot"></span> Départements couverts : 75, 77, 78, 92 et 94 — bureau à Paris 16e.
+          <span class="legendDot"></span> Cliquez sur un département pour déplacer la carte — bureau à Paris 16e.
         </p>
       </div>
     </div>
@@ -774,50 +795,23 @@ font-weight:700;
 <a class="call" href="tel:0601462612">📞 Appeler</a>
 
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script>
-(function(){
-  const mapEl = document.getElementById('idfMap');
-  if(!mapEl || typeof L === 'undefined') return;
+  // Boutons Google Maps : changement de zone sans quitter la page
+  (function(){
+    const iframe = document.getElementById('googleMap');
+    const buttons = document.querySelectorAll('.mapBtn');
+    if(!iframe || !buttons.length) return;
 
-  const map = L.map('idfMap', {
-    scrollWheelZoom:false,
-    zoomControl:true
-  }).setView([48.80, 2.45], 8);
+    buttons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const query = btn.getAttribute('data-map') || '81 rue de l’Assomption 75016 Paris';
+        iframe.src = 'https://www.google.com/maps?q=' + encodeURIComponent(query) + '&output=embed';
 
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom:18,
-    attribution:'&copy; OpenStreetMap'
-  }).addTo(map);
-
-  const blueStyle = {
-    color:'#2563eb',
-    weight:2,
-    opacity:0.9,
-    fillColor:'#2563eb',
-    fillOpacity:0.22
-  };
-
-  const zones = [
-    {name:'Paris (75)', pts:[[48.902,2.25],[48.902,2.42],[48.815,2.42],[48.815,2.25]]},
-    {name:'Hauts-de-Seine (92)', pts:[[48.95,2.13],[48.92,2.34],[48.75,2.33],[48.72,2.17],[48.82,2.08]]},
-    {name:'Val-de-Marne (94)', pts:[[48.86,2.34],[48.86,2.58],[48.68,2.57],[48.68,2.31],[48.77,2.25]]},
-    {name:'Yvelines (78)', pts:[[49.08,1.42],[49.10,2.23],[48.60,2.22],[48.52,1.45]]},
-    {name:'Seine-et-Marne (77)', pts:[[49.10,2.45],[49.13,3.55],[48.12,3.55],[48.12,2.38],[48.68,2.57]]}
-  ];
-
-  const group = L.featureGroup().addTo(map);
-  zones.forEach(z => {
-    L.polygon(z.pts, blueStyle).bindPopup('<strong>'+z.name+'</strong><br>Zone d’intervention').addTo(group);
-  });
-
-  const bureau = L.marker([48.8536, 2.2684]).addTo(group);
-  bureau.bindPopup('<strong>J2B Couverture</strong><br>81 rue de l’Assomption<br>75016 Paris').openPopup();
-
-  map.fitBounds(group.getBounds(), {padding:[20,20]});
-
-  setTimeout(()=>map.invalidateSize(), 300);
-})();
+        buttons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+      });
+    });
+  })();
 </script>
 
 <script>
