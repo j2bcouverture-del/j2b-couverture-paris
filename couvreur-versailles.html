@@ -286,14 +286,24 @@
       .topbar-inner span:last-child{display:none}
       .brand-copy{display:none}
       .nav-actions .btn{display:none}
-      .hero{min-height:690px}
-      .hero-inner{padding:75px 0 120px}
+
+      /* Recadrage du bandeau d’accueil sur mobile */
+      .hero{min-height:760px}
+      .hero-inner{padding:86px 0 150px}
+      .hero-media img{object-position:center 35%}
       .hero-media::after{background:linear-gradient(90deg,rgba(3,13,25,.94),rgba(5,22,42,.72)),linear-gradient(0deg,rgba(7,25,46,.38),transparent)}
       .hero-actions .btn{width:100%}
-      .trust-strip{margin-top:-24px}
-      .trust-grid{grid-template-columns:1fr}
-      .trust-item{border-right:0;border-bottom:1px solid var(--line)!important}
-      .trust-item:last-child{border-bottom:0!important}
+
+      /* Bloc de confiance plus compact : 2 colonnes au lieu de 4 grandes lignes */
+      .trust-strip{margin-top:-42px}
+      .trust-grid{grid-template-columns:repeat(2,minmax(0,1fr));border-radius:20px}
+      .trust-item{padding:17px 14px;gap:10px;align-items:flex-start;border-right:1px solid var(--line);border-bottom:1px solid var(--line)!important;min-width:0}
+      .trust-item:nth-child(2n){border-right:0}
+      .trust-item:nth-last-child(-n+2){border-bottom:0!important}
+      .trust-icon{width:42px;height:42px;border-radius:13px;font-size:1.15rem}
+      .trust-item strong{font-size:.94rem;line-height:1.2}
+      .trust-item span{font-size:.78rem;line-height:1.35;margin-top:4px}
+
       .section{padding:70px 0}
       .section-head{display:block}
       .services,.process,.intro-list{grid-template-columns:1fr}
