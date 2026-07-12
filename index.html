@@ -625,6 +625,20 @@ font-weight:700;
   background:#cbd5e1;
   border-radius:999px;
 }
+
+.menuCall{
+  margin-top:6px;
+  background:var(--red)!important;
+  color:#fff!important;
+  text-align:center;
+}
+.menuCall:hover{
+  background:#b91c1c!important;
+}
+@media (min-width:700px){
+  .menuSub{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+
 </style>
 
 
@@ -664,20 +678,40 @@ font-weight:700;
         <span></span><span></span><span></span>
       </button>
 
+      
       <div class="menuPanel" id="menuPanel">
-        <a class="menuItem" href="#services">Services</a>
-        <a class="menuItem" href="#zone">Zone</a>
+        <a class="menuItem" href="#top">🏠 Accueil</a>
+        <a class="menuItem" href="#services">🛠️ Services</a>
+        <a class="menuItem" href="#simulation">🎨 Simulateur couleur</a>
+        <a class="menuItem" href="#avis">⭐ Avis clients</a>
+        <a class="menuItem" href="#realisations">📸 Photos</a>
+        <a class="menuItem" href="#videos">🎥 Vidéos</a>
+        <a class="menuItem" href="#adresse">📍 Nous trouver</a>
 
         <button class="menuSubToggle" id="localitesToggle" type="button" aria-expanded="false" aria-controls="localitesSub">
           <span>📍 Pages locales</span>
           <span class="arrow">›</span>
         </button>
+
         <div class="menuSub" id="localitesSub">
           <a href="https://j2bcouverture-idf.fr/couvreur-versailles">Versailles</a>
+          <a href="https://j2bcouverture-idf.fr/couvreur-le-chesnay-rocquencourt">Le Chesnay-Rocquencourt</a>
           <a href="https://j2bcouverture-idf.fr/couvreur-saint-germain-en-laye">Saint-Germain-en-Laye</a>
           <a href="https://j2bcouverture-idf.fr/couvreur-poissy">Poissy</a>
+          <a href="https://j2bcouverture-idf.fr/couvreur-conflans-sainte-honorine">Conflans-Sainte-Honorine</a>
+          <a href="https://j2bcouverture-idf.fr/couvreur-mantes-la-jolie">Mantes-la-Jolie</a>
+          <a href="https://j2bcouverture-idf.fr/couvreur-rambouillet">Rambouillet</a>
+          <a href="https://j2bcouverture-idf.fr/couvreur-houilles">Houilles</a>
+          <a href="https://j2bcouverture-idf.fr/couvreur-sartrouville">Sartrouville</a>
+          <a href="https://j2bcouverture-idf.fr/couvreur-chatou">Chatou</a>
         </div>
+
+        <a class="menuItem" href="#devis">📩 Demande de devis</a>
+        <a class="menuItem" href="#contact">✉️ Contact</a>
+        <a class="menuItem menuCall" href="tel:0601462612">📞 Appeler maintenant</a>
       </div>
+
+    </div>
   </nav>
 </header>
 
