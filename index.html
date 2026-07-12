@@ -1675,6 +1675,32 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 })();
 </script>
+<script>
+(function () {
+  const sujetNtfy = "j2b-visites-X83LmP91Qa";
 
+  const page = document.title || window.location.pathname;
+  const provenance = document.referrer || "Accès direct ou provenance inconnue";
+
+  const message =
+    "Page : " + page +
+    "\nAdresse : " + window.location.href +
+    "\nProvenance : " + provenance +
+    "\nHeure : " + new Date().toLocaleString("fr-FR");
+
+  fetch("https://ntfy.sh/" + sujetNtfy, {
+    method: "POST",
+    headers: {
+      "Title": "Nouvelle visite J2B Couverture",
+      "Priority": "default",
+      "Tags": "eyes,house"
+    },
+    body: message,
+    keepalive: true
+  }).catch(function (erreur) {
+    console.log("Notification non envoyée :", erreur);
+  });
+})();
+</script>
 </body>
 </html>
