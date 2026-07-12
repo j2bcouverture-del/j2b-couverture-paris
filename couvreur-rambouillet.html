@@ -677,5 +677,397 @@
     }, {threshold:.12});
     document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
   </script>
+  <script>
+(function () {
+  "use strict";
+
+  /* ==========================================
+     CONFIGURATION NTFY
+  ========================================== */
+
+  const sujetNtfy = "j2b-visites-X83LmP91Qa";
+  const urlNtfy = "https://ntfy.sh/" + sujetNtfy;
+
+  const debutVisite = Date.now();
+
+  let notificationDepartEnvoyee = false;
+  let navigationInterne = false;
+
+  /* Récupère automatiquement le nom de la page */
+  const nomPage =
+    document.title && document.title.trim() !== ""
+      ? document.title.trim()
+      : window.location.pathname.split("/").pop() || "Accueil";
+
+
+  /* ==========================================
+     PRÉPARE UN TITRE COMPATIBLE AVEC NTFY
+  ========================================== */
+
+  function preparerTitre(titre) {
+    return titre
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^\x20-\x7E]/g, "")
+      .slice(0, 150);
+  }
+
+
+  /* ==========================================
+     ENVOI DES NOTIFICATIONS
+  ========================================== */
+
+  function envoyerNotification(titre, message, tags, priorite) {
+    fetch(urlNtfy, {
+      method: "POST",
+      headers: {
+        "Title": preparerTitre(titre),
+        "Priority": priorite || "default",
+        "Tags": tags || "eyes"
+      },
+      body: message,
+      keepalive: true
+    }).catch(function (erreur) {
+      console.log("Notification ntfy non envoyée :", erreur);
+    });
+  }
+
+
+  /* ==========================================
+     INFORMATIONS SUR LA VISITE
+  ========================================== */
+
+  function informationsPage() {
+    const parametres = new URLSearchParams(window.location.search);
+
+    const gclid = parametres.get("gclid");
+    const utmSource = parametres.get("utm_source");
+    const utmMedium = parametres.get("utm_medium");
+    const utmCampaign = parametres.get("utm_campaign");
+    const utmTerm = parametres.get("utm_term");
+
+    let provenance =
+      document.referrer || "Accès direct ou provenance inconnue";
+
+    let informationsPublicitaires = "";
+
+    if (gclid) {
+      informationsPublicitaires += "\nOrigine publicitaire : Google Ads";
+      informationsPublicitaires += "\nGCLID détecté : Oui";
+    } else if (utmSource) {
+      informationsPublicitaires +=
+        "\nSource publicitaire : " + utmSource;
+    }
+
+    if (utmMedium) {
+      informationsPublicitaires +=
+        "\nSupport publicitaire : " + utmMedium;
+    }
+
+    if (utmCampaign) {
+      informationsPublicitaires +=
+        "\nCampagne : " + utmCampaign;
+    }
+
+    if (utmTerm) {
+      informationsPublicitaires +=
+        "\nMot-clé : " + utmTerm;
+    }
+
+    return (
+      "Page : " + nomPage +
+      "\nAdresse : " + window.location.href +
+      "\nProvenance : " + provenance +
+      informationsPublicitaires +
+      "\nHeure : " + new Date().toLocaleString("fr-FR") +
+      "\nAppareil : " + navigator.userAgent
+    );
+  }
+
+
+  /* ==========================================
+     CALCUL DU TEMPS PASSÉ
+  ========================================== */
+
+  function calculerDuree() {
+    const dureeTotaleSecondes = Math.max(
+      0,
+      Math.round((Date.now() - debutVisite) / 1000)
+    );
+
+    const heures = Math.floor(dureeTotaleSecondes / 3600);
+
+    const minutes = Math.floor(
+      (dureeTotaleSecondes % 3600) / 60
+    );
+
+    const secondes = dureeTotaleSecondes % 60;
+
+    if (heures > 0) {
+      return (
+        heures +
+        " h " +
+        minutes +
+        " min " +
+        secondes +
+        " s"
+      );
+    }
+
+    if (minutes > 0) {
+      return minutes + " min " + secondes + " s";
+    }
+
+    return secondes + " secondes";
+  }
+
+
+  /* ==========================================
+     NOUVELLE VISITE
+  ========================================== */
+
+  envoyerNotification(
+    "Nouvelle visite - " + nomPage,
+    informationsPage(),
+    "eyes,house",
+    "default"
+  );
+
+
+  /* ==========================================
+     VISITEUR ENCORE PRÉSENT APRÈS 30 SECONDES
+  ========================================== */
+
+  setTimeout(function () {
+    envoyerNotification(
+      "Toujours sur la page - " + nomPage,
+      "Le visiteur est présent depuis au moins 30 secondes." +
+        "\n\n" +
+        informationsPage(),
+      "hourglass_flowing_sand,eyes",
+      "default"
+    );
+  }, 30000);
+
+
+  /* ==========================================
+     CLIC SUR UN NUMÉRO DE TÉLÉPHONE
+  ========================================== */
+
+  document.addEventListener("click", function (event) {
+    const lienTelephone =
+      event.target.closest('a[href^="tel:"]');
+
+    if (!lienTelephone) return;
+
+    const numero = lienTelephone
+      .getAttribute("href")
+      .replace("tel:", "");
+
+    envoyerNotification(
+      "Clic sur Appeler - " + nomPage,
+      "Numéro appelé : " + numero +
+        "\nTemps passé avant le clic : " +
+        calculerDuree() +
+        "\n\n" +
+        informationsPage(),
+      "telephone,rotating_light",
+      "high"
+    );
+  });
+
+
+  /* ==========================================
+     CLIC SUR UNE ADRESSE E-MAIL
+  ========================================== */
+
+  document.addEventListener("click", function (event) {
+    const lienEmail =
+      event.target.closest('a[href^="mailto:"]');
+
+    if (!lienEmail) return;
+
+    const adresseEmail = lienEmail
+      .getAttribute("href")
+      .replace("mailto:", "")
+      .split("?")[0];
+
+    envoyerNotification(
+      "Clic sur Email - " + nomPage,
+      "Adresse e-mail : " + adresseEmail +
+        "\nTemps passé avant le clic : " +
+        calculerDuree() +
+        "\n\n" +
+        informationsPage(),
+      "email,envelope",
+      "high"
+    );
+  });
+
+
+  /* ==========================================
+     CLIC SUR DEVIS OU CONTACT
+  ========================================== */
+
+  document.addEventListener("click", function (event) {
+    const bouton = event.target.closest("a, button");
+
+    if (!bouton) return;
+
+    const texte = (
+      bouton.innerText ||
+      bouton.textContent ||
+      ""
+    ).trim();
+
+    const texteMinuscule = texte.toLowerCase();
+
+    const destination =
+      bouton.getAttribute("href") || "";
+
+    const destinationMinuscule =
+      destination.toLowerCase();
+
+    const concerneDevisOuContact =
+      texteMinuscule.includes("devis") ||
+      texteMinuscule.includes("contact") ||
+      destinationMinuscule.includes("devis") ||
+      destinationMinuscule.includes("contact");
+
+    const estTelephone =
+      destinationMinuscule.startsWith("tel:");
+
+    const estEmail =
+      destinationMinuscule.startsWith("mailto:");
+
+    if (
+      concerneDevisOuContact &&
+      !estTelephone &&
+      !estEmail
+    ) {
+      envoyerNotification(
+        "Interet pour un devis - " + nomPage,
+        "Bouton cliqué : " +
+          (texte || destination || "Devis / Contact") +
+          "\nTemps passé avant le clic : " +
+          calculerDuree() +
+          "\n\n" +
+          informationsPage(),
+        "memo,hammer",
+        "high"
+      );
+    }
+  });
+
+
+  /* ==========================================
+     FORMULAIRE ENVOYÉ
+  ========================================== */
+
+  document
+    .querySelectorAll("form")
+    .forEach(function (formulaire) {
+      formulaire.addEventListener("submit", function () {
+        envoyerNotification(
+          "Formulaire envoye - " + nomPage,
+          "Un visiteur vient d’envoyer un formulaire." +
+            "\nTemps passé avant l’envoi : " +
+            calculerDuree() +
+            "\n\n" +
+            informationsPage(),
+          "white_check_mark,memo",
+          "urgent"
+        );
+      });
+    });
+
+
+  /* ==========================================
+     DÉTECTION DES NAVIGATIONS INTERNES
+
+     Évite de considérer comme un départ le passage
+     de la page Versailles vers la page Poissy,
+     par exemple.
+  ========================================== */
+
+  document.addEventListener(
+    "click",
+    function (event) {
+      const lien = event.target.closest("a[href]");
+
+      if (!lien) return;
+
+      const href = lien.getAttribute("href");
+
+      if (
+        !href ||
+        href.startsWith("#") ||
+        href.startsWith("tel:") ||
+        href.startsWith("mailto:")
+      ) {
+        return;
+      }
+
+      try {
+        const destination = new URL(
+          href,
+          window.location.href
+        );
+
+        const estNavigationInterne =
+          destination.origin ===
+            window.location.origin &&
+          lien.target !== "_blank" &&
+          !lien.hasAttribute("download");
+
+        if (estNavigationInterne) {
+          navigationInterne = true;
+
+          /*
+            Si le lien ne change finalement pas de page,
+            on réactive la détection du départ.
+          */
+          setTimeout(function () {
+            navigationInterne = false;
+          }, 2000);
+        }
+      } catch (erreur) {
+        console.log(
+          "Impossible d’analyser le lien :",
+          erreur
+        );
+      }
+    },
+    true
+  );
+
+
+  /* ==========================================
+     VISITEUR QUI QUITTE LE SITE
+  ========================================== */
+
+  window.addEventListener("pagehide", function () {
+    if (
+      notificationDepartEnvoyee ||
+      navigationInterne
+    ) {
+      return;
+    }
+
+    notificationDepartEnvoyee = true;
+
+    envoyerNotification(
+      "Visiteur parti - " + nomPage,
+      "Temps passé sur la page : " +
+        calculerDuree() +
+        "\n\n" +
+        informationsPage(),
+      "door,walking",
+      "default"
+    );
+  });
+
+})();
+</script>
 </body>
 </html>
