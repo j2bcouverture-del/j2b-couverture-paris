@@ -1680,6 +1680,10 @@ document.addEventListener('DOMContentLoaded', function () {
   const sujetNtfy = "j2b-visites-X83LmP91Qa";
   const urlNtfy = "https://ntfy.sh/" + sujetNtfy;
 
+  const debutVisite = Date.now();
+  let notificationDepartEnvoyee = false;
+  let navigationInterne = false;
+
   function envoyerNotification(titre, message, tags, priorite) {
     fetch(urlNtfy, {
       method: "POST",
@@ -1696,40 +1700,121 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function informationsPage() {
+    const provenance =
+      document.referrer || "Accès direct ou provenance inconnue";
+
+    const parametres = new URLSearchParams(window.location.search);
+
+    const gclid = parametres.get("gclid");
+    const utmSource = parametres.get("utm_source");
+    const utmCampaign = parametres.get("utm_campaign");
+    const utmMedium = parametres.get("utm_medium");
+
+    let originePublicitaire = "";
+
+    if (gclid) {
+      originePublicitaire += "\nOrigine : Google Ads";
+    } else if (utmSource) {
+      originePublicitaire += "\nSource publicitaire : " + utmSource;
+    }
+
+    if (utmMedium) {
+      originePublicitaire += "\nSupport : " + utmMedium;
+    }
+
+    if (utmCampaign) {
+      originePublicitaire += "\nCampagne : " + utmCampaign;
+    }
+
     return (
       "Page : " + (document.title || window.location.pathname) +
       "\nAdresse : " + window.location.href +
-      "\nProvenance : " +
-      (document.referrer || "Accès direct ou provenance inconnue") +
+      "\nProvenance : " + provenance +
+      originePublicitaire +
       "\nHeure : " + new Date().toLocaleString("fr-FR") +
       "\nAppareil : " + navigator.userAgent
     );
   }
 
-  /* Notification à chaque visite */
+  function calculerDuree() {
+    const dureeSecondes = Math.max(
+      0,
+      Math.round((Date.now() - debutVisite) / 1000)
+    );
+
+    const heures = Math.floor(dureeSecondes / 3600);
+    const minutes = Math.floor((dureeSecondes % 3600) / 60);
+    const secondes = dureeSecondes % 60;
+
+    if (heures > 0) {
+      return heures + " h " + minutes + " min " + secondes + " s";
+    }
+
+    if (minutes > 0) {
+      return minutes + " min " + secondes + " s";
+    }
+
+    return secondes + " secondes";
+  }
+
+  /* Notification à chaque arrivée sur une page */
   envoyerNotification(
-    "Nouvelle visite J2B Couverture",
+    "NOUVELLE VISITE J2B COUVERTURE",
     informationsPage(),
     "eyes,house",
     "default"
   );
 
+  /* Notification après 30 secondes sur la page */
+  setTimeout(function () {
+    envoyerNotification(
+      "VISITEUR PRÉSENT DEPUIS 30 SECONDES",
+      "Temps passé : au moins 30 secondes\n\n" + informationsPage(),
+      "hourglass_flowing_sand,eyes",
+      "default"
+    );
+  }, 30000);
+
   /* Notification lors d’un clic sur un numéro de téléphone */
   document.addEventListener("click", function (event) {
     const lienTelephone = event.target.closest('a[href^="tel:"]');
 
-    if (lienTelephone) {
-      const numero = lienTelephone
-        .getAttribute("href")
-        .replace("tel:", "");
+    if (!lienTelephone) return;
 
-      envoyerNotification(
-        "CLIC SUR APPELER",
-        "Numéro appelé : " + numero + "\n\n" + informationsPage(),
-        "telephone,rotating_light",
-        "high"
-      );
-    }
+    const numero = lienTelephone
+      .getAttribute("href")
+      .replace("tel:", "");
+
+    envoyerNotification(
+      "CLIC SUR APPELER",
+      "Numéro appelé : " +
+        numero +
+        "\nTemps passé avant le clic : " +
+        calculerDuree() +
+        "\n\n" +
+        informationsPage(),
+      "telephone,rotating_light",
+      "high"
+    );
+  });
+
+  /* Notification lors d’un clic sur un e-mail */
+  document.addEventListener("click", function (event) {
+    const lienEmail = event.target.closest('a[href^="mailto:"]');
+
+    if (!lienEmail) return;
+
+    envoyerNotification(
+      "CLIC SUR L’ADRESSE E-MAIL",
+      "Adresse : " +
+        lienEmail.getAttribute("href").replace("mailto:", "") +
+        "\nTemps passé avant le clic : " +
+        calculerDuree() +
+        "\n\n" +
+        informationsPage(),
+      "email,envelope",
+      "high"
+    );
   });
 
   /* Notification lors d’un clic vers un devis ou un contact */
@@ -1738,23 +1823,33 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (!bouton) return;
 
-    const texte = (bouton.innerText || bouton.textContent || "")
-      .trim()
-      .toLowerCase();
+    const texte = (
+      bouton.innerText ||
+      bouton.textContent ||
+      ""
+    ).trim();
 
+    const texteMinuscule = texte.toLowerCase();
     const destination = bouton.getAttribute("href") || "";
+    const destinationMinuscule = destination.toLowerCase();
 
     const concerneDevis =
-      texte.includes("devis") ||
-      texte.includes("contact") ||
-      destination.toLowerCase().includes("devis") ||
-      destination.toLowerCase().includes("contact");
+      texteMinuscule.includes("devis") ||
+      texteMinuscule.includes("contact") ||
+      destinationMinuscule.includes("devis") ||
+      destinationMinuscule.includes("contact");
 
-    if (concerneDevis && !destination.startsWith("tel:")) {
+    if (
+      concerneDevis &&
+      !destinationMinuscule.startsWith("tel:") &&
+      !destinationMinuscule.startsWith("mailto:")
+    ) {
       envoyerNotification(
         "INTÉRÊT POUR UN DEVIS",
         "Bouton cliqué : " +
-          (bouton.innerText || destination || "Devis / Contact") +
+          (texte || destination || "Devis / Contact") +
+          "\nTemps passé avant le clic : " +
+          calculerDuree() +
           "\n\n" +
           informationsPage(),
         "memo,hammer",
@@ -1763,17 +1858,76 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
 
-  /* Notification lorsqu’un formulaire est envoyé */
+  /* Notification lors de l’envoi d’un formulaire */
   document.querySelectorAll("form").forEach(function (formulaire) {
     formulaire.addEventListener("submit", function () {
       envoyerNotification(
         "FORMULAIRE ENVOYÉ",
-        "Un visiteur vient d’envoyer un formulaire.\n\n" +
+        "Un visiteur vient d’envoyer un formulaire." +
+          "\nTemps passé avant l’envoi : " +
+          calculerDuree() +
+          "\n\n" +
           informationsPage(),
         "white_check_mark,memo",
         "urgent"
       );
     });
+  });
+
+  /*
+    Repère les clics vers une autre page du même site.
+    Cela évite de vous dire que le visiteur a quitté le site
+    alors qu’il consulte simplement une autre page.
+  */
+  document.addEventListener(
+    "click",
+    function (event) {
+      const lien = event.target.closest("a[href]");
+
+      if (!lien) return;
+
+      try {
+        const destination = new URL(
+          lien.getAttribute("href"),
+          window.location.href
+        );
+
+        const estUneNavigationInterne =
+          destination.origin === window.location.origin &&
+          !destination.href.startsWith("tel:") &&
+          !destination.href.startsWith("mailto:") &&
+          lien.target !== "_blank" &&
+          !lien.hasAttribute("download");
+
+        if (estUneNavigationInterne) {
+          navigationInterne = true;
+
+          setTimeout(function () {
+            navigationInterne = false;
+          }, 2000);
+        }
+      } catch (erreur) {
+        console.log("Lien non reconnu :", erreur);
+      }
+    },
+    true
+  );
+
+  /* Notification lorsque le visiteur quitte le site */
+  window.addEventListener("pagehide", function () {
+    if (notificationDepartEnvoyee || navigationInterne) return;
+
+    notificationDepartEnvoyee = true;
+
+    envoyerNotification(
+      "VISITEUR A QUITTÉ LE SITE",
+      "Temps passé : " +
+        calculerDuree() +
+        "\n\n" +
+        informationsPage(),
+      "door,walking",
+      "default"
+    );
   });
 })();
 </script>
