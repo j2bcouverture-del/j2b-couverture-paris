@@ -685,47 +685,40 @@
     }, {threshold:.12});
     document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
   </script>
-  <script>
-(function () {
+<script>
+(function(){
   "use strict";
-
-  /* ==========================================
-     CONFIGURATION NTFY
-  ========================================== */
 
   const sujetNtfy = "j2b-visites-X83LmP91Qa";
   const urlNtfy = "https://ntfy.sh/" + sujetNtfy;
 
   const debutVisite = Date.now();
+  const nomPage = document.title || "Page Versailles";
 
   let notificationDepartEnvoyee = false;
-  let navigationInterne = false;
+  let notificationInactiviteEnvoyee = false;
+  let minuteurInactivite = null;
+  let minuteurPageMasquee = null;
 
-  /* Récupère automatiquement le nom de la page */
-  const nomPage =
-    document.title && document.title.trim() !== ""
-      ? document.title.trim()
-      : window.location.pathname.split("/").pop() || "Accueil";
+  let pourcentageMaximum = 0;
+  let dernierePositionY = window.scrollY;
+  let derniereDirection = "Aucun défilement";
+  let calculDefilementEnCours = false;
 
+  let formulaireOuvert = false;
+  let formulaireEnvoye = false;
+  let dernierChampCommence = "";
+  const champsCommences = new Set();
 
-  /* ==========================================
-     PRÉPARE UN TITRE COMPATIBLE AVEC NTFY
-  ========================================== */
-
-  function preparerTitre(titre) {
-    return titre
+  function preparerTitre(titre){
+    return String(titre)
       .normalize("NFD")
       .replace(/[\u0300-\u036f]/g, "")
       .replace(/[^\x20-\x7E]/g, "")
       .slice(0, 150);
   }
 
-
-  /* ==========================================
-     ENVOI DES NOTIFICATIONS
-  ========================================== */
-
-  function envoyerNotification(titre, message, tags, priorite) {
+  function envoyerNotification(titre, message, tags, priorite){
     fetch(urlNtfy, {
       method: "POST",
       headers: {
@@ -735,104 +728,177 @@
       },
       body: message,
       keepalive: true
-    }).catch(function (erreur) {
-      console.log("Notification ntfy non envoyée :", erreur);
-    });
+    }).catch(function(){});
   }
 
-
-  /* ==========================================
-     INFORMATIONS SUR LA VISITE
-  ========================================== */
-
-  function informationsPage() {
-    const parametres = new URLSearchParams(window.location.search);
-
-    const gclid = parametres.get("gclid");
-    const utmSource = parametres.get("utm_source");
-    const utmMedium = parametres.get("utm_medium");
-    const utmCampaign = parametres.get("utm_campaign");
-    const utmTerm = parametres.get("utm_term");
-
-    let provenance =
-      document.referrer || "Accès direct ou provenance inconnue";
-
-    let informationsPublicitaires = "";
-
-    if (gclid) {
-      informationsPublicitaires += "\nOrigine publicitaire : Google Ads";
-      informationsPublicitaires += "\nGCLID détecté : Oui";
-    } else if (utmSource) {
-      informationsPublicitaires +=
-        "\nSource publicitaire : " + utmSource;
-    }
-
-    if (utmMedium) {
-      informationsPublicitaires +=
-        "\nSupport publicitaire : " + utmMedium;
-    }
-
-    if (utmCampaign) {
-      informationsPublicitaires +=
-        "\nCampagne : " + utmCampaign;
-    }
-
-    if (utmTerm) {
-      informationsPublicitaires +=
-        "\nMot-clé : " + utmTerm;
-    }
-
-    return (
-      "Page : " + nomPage +
-      "\nAdresse : " + window.location.href +
-      "\nProvenance : " + provenance +
-      informationsPublicitaires +
-      "\nHeure : " + new Date().toLocaleString("fr-FR") +
-      "\nAppareil : " + navigator.userAgent
-    );
-  }
-
-
-  /* ==========================================
-     CALCUL DU TEMPS PASSÉ
-  ========================================== */
-
-  function calculerDuree() {
-    const dureeTotaleSecondes = Math.max(
+  function calculerDuree(){
+    const total = Math.max(
       0,
       Math.round((Date.now() - debutVisite) / 1000)
     );
 
-    const heures = Math.floor(dureeTotaleSecondes / 3600);
+    const h = Math.floor(total / 3600);
+    const m = Math.floor((total % 3600) / 60);
+    const s = total % 60;
 
-    const minutes = Math.floor(
-      (dureeTotaleSecondes % 3600) / 60
-    );
+    if(h) return h + " h " + m + " min " + s + " s";
+    if(m) return m + " min " + s + " s";
 
-    const secondes = dureeTotaleSecondes % 60;
+    return s + " seconde" + (s > 1 ? "s" : "");
+  }
 
-    if (heures > 0) {
-      return (
-        heures +
-        " h " +
-        minutes +
-        " min " +
-        secondes +
-        " s"
+  function informationsPage(){
+    const params = new URLSearchParams(location.search);
+
+    const infos = [
+      "Page : " + nomPage,
+      "Adresse : " + location.href,
+      "Provenance : " +
+        (document.referrer || "Accès direct ou provenance inconnue"),
+      "Heure : " + new Date().toLocaleString("fr-FR"),
+      "Appareil : " + navigator.userAgent
+    ];
+
+    if(params.get("gclid")){
+      infos.splice(
+        3,
+        0,
+        "Origine publicitaire : Google Ads\nGCLID détecté : Oui"
       );
     }
 
-    if (minutes > 0) {
-      return minutes + " min " + secondes + " s";
+    if(params.get("utm_source")){
+      infos.splice(
+        3,
+        0,
+        "Source publicitaire : " + params.get("utm_source")
+      );
     }
 
-    return secondes + " secondes";
+    if(params.get("utm_medium")){
+      infos.splice(
+        4,
+        0,
+        "Support publicitaire : " + params.get("utm_medium")
+      );
+    }
+
+    if(params.get("utm_campaign")){
+      infos.splice(
+        5,
+        0,
+        "Campagne : " + params.get("utm_campaign")
+      );
+    }
+
+    if(params.get("utm_term")){
+      infos.splice(
+        6,
+        0,
+        "Mot-clé : " + params.get("utm_term")
+      );
+    }
+
+    return infos.join("\n");
   }
 
+  function calculerPourcentageDefilement(){
+    const hauteurDocument = Math.max(
+      document.body.scrollHeight,
+      document.documentElement.scrollHeight,
+      document.body.offsetHeight,
+      document.documentElement.offsetHeight,
+      document.body.clientHeight,
+      document.documentElement.clientHeight
+    );
 
-  /* ==========================================
-     NOUVELLE VISITE
-  ========================================== */
+    const hauteurDefilable =
+      hauteurDocument - window.innerHeight;
+
+    if(hauteurDefilable <= 0){
+      return 100;
+    }
+
+    return Math.min(
+      100,
+      Math.max(
+        0,
+        Math.round(
+          (window.scrollY / hauteurDefilable) * 100
+        )
+      )
+    );
+  }
+
+  function mettreAJourDefilement(){
+    const positionActuelle = window.scrollY;
+
+    if(positionActuelle > dernierePositionY){
+      derniereDirection = "Vers le bas";
+    }else if(positionActuelle < dernierePositionY){
+      derniereDirection = "Vers le haut";
+    }
+
+    dernierePositionY = positionActuelle;
+
+    const pourcentageActuel =
+      calculerPourcentageDefilement();
+
+    if(pourcentageActuel > pourcentageMaximum){
+      pourcentageMaximum = pourcentageActuel;
+    }
+
+    calculDefilementEnCours = false;
+  }
+
+  window.addEventListener(
+    "scroll",
+    function(){
+      if(calculDefilementEnCours) return;
+
+      calculDefilementEnCours = true;
+      requestAnimationFrame(mettreAJourDefilement);
+    },
+    { passive: true }
+  );
+
+  window.addEventListener(
+    "resize",
+    mettreAJourDefilement,
+    { passive: true }
+  );
+
+  mettreAJourDefilement();
+
+  function rapportComportement(){
+    const champs = Array.from(champsCommences);
+
+    const lignes = [
+      "Temps passé : " + calculerDuree(),
+      "Défilement maximal : " +
+        pourcentageMaximum + " %",
+      "Dernier sens de défilement : " +
+        derniereDirection,
+      "Formulaire ouvert : " +
+        (formulaireOuvert ? "Oui" : "Non"),
+      "Formulaire envoyé : " +
+        (formulaireEnvoye ? "Oui" : "Non"),
+      "Champs commencés : " +
+        (champs.length ? champs.join(", ") : "Aucun")
+    ];
+
+    if(formulaireOuvert && !formulaireEnvoye){
+      lignes.push("Formulaire abandonné : Oui");
+      lignes.push(
+        "Dernier champ commencé : " +
+        (dernierChampCommence || "Non identifié")
+      );
+    }else{
+      lignes.push("Formulaire abandonné : Non");
+    }
+
+    return lignes.join("\n");
+  }
 
   envoyerNotification(
     "Nouvelle visite - " + nomPage,
@@ -841,240 +907,344 @@
     "default"
   );
 
-
-  /* ==========================================
-     VISITEUR ENCORE PRÉSENT APRÈS 30 SECONDES
-  ========================================== */
-
-  setTimeout(function () {
-    envoyerNotification(
-      "Toujours sur la page - " + nomPage,
-      "Le visiteur est présent depuis au moins 30 secondes." +
+  setTimeout(function(){
+    if(
+      document.visibilityState === "visible" &&
+      !notificationDepartEnvoyee
+    ){
+      envoyerNotification(
+        "Toujours sur la page - " + nomPage,
+        "Le visiteur est présent depuis au moins 30 secondes." +
+        "\n\n" +
+        rapportComportement() +
         "\n\n" +
         informationsPage(),
-      "hourglass_flowing_sand,eyes",
-      "default"
-    );
+        "hourglass_flowing_sand,eyes",
+        "default"
+      );
+    }
   }, 30000);
 
+  document.addEventListener("click", function(event){
+    const tel = event.target.closest(
+      'a[href^="tel:"]'
+    );
 
-  /* ==========================================
-     CLIC SUR UN NUMÉRO DE TÉLÉPHONE
-  ========================================== */
-
-  document.addEventListener("click", function (event) {
-    const lienTelephone =
-      event.target.closest('a[href^="tel:"]');
-
-    if (!lienTelephone) return;
-
-    const numero = lienTelephone
-      .getAttribute("href")
-      .replace("tel:", "");
-
-    envoyerNotification(
-      "Clic sur Appeler - " + nomPage,
-      "Numéro appelé : " + numero +
-        "\nTemps passé avant le clic : " +
+    if(tel){
+      envoyerNotification(
+        "Clic sur Appeler - " + nomPage,
+        "Numéro appelé : " +
+        tel.getAttribute("href").replace("tel:", "") +
+        "\nTemps avant le clic : " +
         calculerDuree() +
+        "\nDéfilement atteint : " +
+        pourcentageMaximum + " %" +
         "\n\n" +
         informationsPage(),
-      "telephone,rotating_light",
-      "high"
+        "telephone,rotating_light",
+        "high"
+      );
+
+      return;
+    }
+
+    const email = event.target.closest(
+      'a[href^="mailto:"]'
     );
-  });
 
-
-  /* ==========================================
-     CLIC SUR UNE ADRESSE E-MAIL
-  ========================================== */
-
-  document.addEventListener("click", function (event) {
-    const lienEmail =
-      event.target.closest('a[href^="mailto:"]');
-
-    if (!lienEmail) return;
-
-    const adresseEmail = lienEmail
-      .getAttribute("href")
-      .replace("mailto:", "")
-      .split("?")[0];
-
-    envoyerNotification(
-      "Clic sur Email - " + nomPage,
-      "Adresse e-mail : " + adresseEmail +
-        "\nTemps passé avant le clic : " +
+    if(email){
+      envoyerNotification(
+        "Clic sur Email - " + nomPage,
+        "Adresse e-mail : " +
+        email
+          .getAttribute("href")
+          .replace("mailto:", "")
+          .split("?")[0] +
+        "\nTemps avant le clic : " +
         calculerDuree() +
+        "\nDéfilement atteint : " +
+        pourcentageMaximum + " %" +
         "\n\n" +
         informationsPage(),
-      "email,envelope",
-      "high"
-    );
-  });
+        "email,envelope",
+        "high"
+      );
 
+      return;
+    }
 
-  /* ==========================================
-     CLIC SUR DEVIS OU CONTACT
-  ========================================== */
-
-  document.addEventListener("click", function (event) {
     const bouton = event.target.closest("a, button");
-
-    if (!bouton) return;
+    if(!bouton) return;
 
     const texte = (
       bouton.innerText ||
       bouton.textContent ||
       ""
-    ).trim();
+    ).trim().toLowerCase();
 
-    const texteMinuscule = texte.toLowerCase();
+    const href = (
+      bouton.getAttribute("href") || ""
+    ).toLowerCase();
 
-    const destination =
-      bouton.getAttribute("href") || "";
+    const boutonDevis =
+      texte.includes("devis") ||
+      texte.includes("contact") ||
+      href.includes("devis") ||
+      href.includes("contact");
 
-    const destinationMinuscule =
-      destination.toLowerCase();
-
-    const concerneDevisOuContact =
-      texteMinuscule.includes("devis") ||
-      texteMinuscule.includes("contact") ||
-      destinationMinuscule.includes("devis") ||
-      destinationMinuscule.includes("contact");
-
-    const estTelephone =
-      destinationMinuscule.startsWith("tel:");
-
-    const estEmail =
-      destinationMinuscule.startsWith("mailto:");
-
-    if (
-      concerneDevisOuContact &&
-      !estTelephone &&
-      !estEmail
-    ) {
+    if(
+      boutonDevis &&
+      !href.startsWith("tel:") &&
+      !href.startsWith("mailto:")
+    ){
       envoyerNotification(
         "Interet pour un devis - " + nomPage,
         "Bouton cliqué : " +
-          (texte || destination || "Devis / Contact") +
-          "\nTemps passé avant le clic : " +
-          calculerDuree() +
-          "\n\n" +
-          informationsPage(),
+        (
+          bouton.innerText ||
+          bouton.textContent ||
+          bouton.getAttribute("href") ||
+          "Devis / Contact"
+        ).trim() +
+        "\nTemps avant le clic : " +
+        calculerDuree() +
+        "\nDéfilement atteint : " +
+        pourcentageMaximum + " %" +
+        "\n\n" +
+        informationsPage(),
         "memo,hammer",
         "high"
       );
     }
   });
 
+  function obtenirNomChamp(champ){
+    if(!champ) return "Champ inconnu";
 
-  /* ==========================================
-     FORMULAIRE ENVOYÉ
-  ========================================== */
+    const labelParent = champ.closest("label");
 
-  document
-    .querySelectorAll("form")
-    .forEach(function (formulaire) {
-      formulaire.addEventListener("submit", function () {
-        envoyerNotification(
-          "Formulaire envoye - " + nomPage,
-          "Un visiteur vient d’envoyer un formulaire." +
-            "\nTemps passé avant l’envoi : " +
+    if(labelParent){
+      const copieLabel = labelParent.cloneNode(true);
+
+      copieLabel
+        .querySelectorAll(
+          "input, textarea, select, button"
+        )
+        .forEach(function(element){
+          element.remove();
+        });
+
+      const texteLabel =
+        copieLabel.textContent.trim();
+
+      if(texteLabel){
+        return texteLabel;
+      }
+    }
+
+    return (
+      champ.getAttribute("aria-label") ||
+      champ.getAttribute("placeholder") ||
+      champ.getAttribute("name") ||
+      "Champ sans nom"
+    );
+  }
+
+  function enregistrerOuvertureFormulaire(){
+    if(formulaireOuvert) return;
+
+    formulaireOuvert = true;
+
+    envoyerNotification(
+      "Formulaire ouvert - " + nomPage,
+      "Le visiteur a commencé à utiliser le formulaire." +
+      "\nTemps avant l’ouverture : " +
+      calculerDuree() +
+      "\nDéfilement atteint : " +
+      pourcentageMaximum + " %" +
+      "\n\n" +
+      informationsPage(),
+      "memo,eyes",
+      "default"
+    );
+  }
+
+  document.querySelectorAll("form").forEach(function(form){
+    form.addEventListener(
+      "focusin",
+      enregistrerOuvertureFormulaire
+    );
+
+    form.addEventListener(
+      "click",
+      enregistrerOuvertureFormulaire
+    );
+
+    form
+      .querySelectorAll("input, textarea, select")
+      .forEach(function(champ){
+        if(
+          champ.type === "hidden" ||
+          champ.type === "submit" ||
+          champ.type === "button"
+        ){
+          return;
+        }
+
+        function enregistrerDebutChamp(){
+          enregistrerOuvertureFormulaire();
+
+          const nomChamp = obtenirNomChamp(champ);
+          dernierChampCommence = nomChamp;
+
+          if(champsCommences.has(nomChamp)){
+            return;
+          }
+
+          champsCommences.add(nomChamp);
+
+          envoyerNotification(
+            "Champ commence - " + nomPage,
+            "Champ commencé : " +
+            nomChamp +
+            "\nTemps passé : " +
             calculerDuree() +
-            "\n\n" +
-            informationsPage(),
-          "white_check_mark,memo",
-          "urgent"
+            "\nDéfilement atteint : " +
+            pourcentageMaximum + " %" +
+            "\n\nAucune information saisie n’a été enregistrée.",
+            "pencil,memo",
+            "default"
+          );
+        }
+
+        champ.addEventListener(
+          "focus",
+          enregistrerDebutChamp
+        );
+
+        champ.addEventListener(
+          "input",
+          enregistrerDebutChamp,
+          { once: true }
+        );
+
+        champ.addEventListener(
+          "change",
+          enregistrerDebutChamp,
+          { once: true }
         );
       });
+
+    form.addEventListener("submit", function(){
+      formulaireEnvoye = true;
+
+      envoyerNotification(
+        "Formulaire envoye - " + nomPage,
+        "Un visiteur vient d’envoyer le formulaire." +
+        "\n\n" +
+        rapportComportement() +
+        "\n\n" +
+        informationsPage(),
+        "white_check_mark,memo",
+        "urgent"
+      );
     });
+  });
 
+  function relancerMinuteurInactivite(){
+    clearTimeout(minuteurInactivite);
+    notificationInactiviteEnvoyee = false;
 
-  /* ==========================================
-     DÉTECTION DES NAVIGATIONS INTERNES
-
-     Évite de considérer comme un départ le passage
-     de la page Versailles vers la page Poissy,
-     par exemple.
-  ========================================== */
-
-  document.addEventListener(
-    "click",
-    function (event) {
-      const lien = event.target.closest("a[href]");
-
-      if (!lien) return;
-
-      const href = lien.getAttribute("href");
-
-      if (
-        !href ||
-        href.startsWith("#") ||
-        href.startsWith("tel:") ||
-        href.startsWith("mailto:")
-      ) {
+    minuteurInactivite = setTimeout(function(){
+      if(
+        notificationInactiviteEnvoyee ||
+        notificationDepartEnvoyee ||
+        document.visibilityState !== "visible"
+      ){
         return;
       }
 
-      try {
-        const destination = new URL(
-          href,
-          window.location.href
-        );
+      notificationInactiviteEnvoyee = true;
 
-        const estNavigationInterne =
-          destination.origin ===
-            window.location.origin &&
-          lien.target !== "_blank" &&
-          !lien.hasAttribute("download");
-
-        if (estNavigationInterne) {
-          navigationInterne = true;
-
-          /*
-            Si le lien ne change finalement pas de page,
-            on réactive la détection du départ.
-          */
-          setTimeout(function () {
-            navigationInterne = false;
-          }, 2000);
-        }
-      } catch (erreur) {
-        console.log(
-          "Impossible d’analyser le lien :",
-          erreur
-        );
-      }
-    },
-    true
-  );
-
-
-  /* ==========================================
-     VISITEUR QUI QUITTE LE SITE
-  ========================================== */
-
-  window.addEventListener("pagehide", function () {
-    if (
-      notificationDepartEnvoyee ||
-      navigationInterne
-    ) {
-      return;
-    }
-
-    notificationDepartEnvoyee = true;
-
-    envoyerNotification(
-      "Visiteur parti - " + nomPage,
-      "Temps passé sur la page : " +
-        calculerDuree() +
+      envoyerNotification(
+        "Visiteur inactif - " + nomPage,
+        "Aucune activité détectée depuis 10 secondes." +
+        "\n\n" +
+        rapportComportement() +
         "\n\n" +
         informationsPage(),
-      "door,walking",
-      "default"
+        "zzz,eyes",
+        "default"
+      );
+    }, 10000);
+  }
+
+  [
+    "mousemove",
+    "mousedown",
+    "keydown",
+    "touchstart",
+    "scroll",
+    "click"
+  ].forEach(function(nomEvenement){
+    window.addEventListener(
+      nomEvenement,
+      relancerMinuteurInactivite,
+      { passive: true }
     );
   });
 
+  relancerMinuteurInactivite();
+
+  function envoyerFinVisite(raison){
+    if(notificationDepartEnvoyee) return;
+
+    notificationDepartEnvoyee = true;
+
+    clearTimeout(minuteurInactivite);
+    clearTimeout(minuteurPageMasquee);
+
+    mettreAJourDefilement();
+
+    envoyerNotification(
+      "Visiteur parti - " + nomPage,
+      "Raison détectée : " +
+      raison +
+      "\n\n" +
+      rapportComportement() +
+      "\n\n" +
+      informationsPage(),
+      "door,walking",
+      "default"
+    );
+  }
+
+  window.addEventListener("pagehide", function(){
+    envoyerFinVisite(
+      "Page fermée, quittée ou changement de page"
+    );
+  });
+
+  document.addEventListener(
+    "visibilitychange",
+    function(){
+      if(document.visibilityState === "hidden"){
+        clearTimeout(minuteurPageMasquee);
+
+        minuteurPageMasquee = setTimeout(
+          function(){
+            envoyerFinVisite(
+              "Onglet quitté ou navigateur passé en arrière-plan"
+            );
+          },
+          3000
+        );
+      }else{
+        clearTimeout(minuteurPageMasquee);
+        relancerMinuteurInactivite();
+      }
+    }
+  );
 })();
 </script>
 </body>
