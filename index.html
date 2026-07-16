@@ -908,138 +908,632 @@ document.addEventListener("DOMContentLoaded", function(){
 (function(){
   "use strict";
 
+  /* =====================================================
+     CONFIGURATION NTFY
+     ===================================================== */
+
   const sujetNtfy = "j2b-visites-X83LmP91Qa";
   const urlNtfy = "https://ntfy.sh/" + sujetNtfy;
+
+  /* =====================================================
+     INFORMATIONS DE LA VISITE
+     ===================================================== */
+
   const debutVisite = Date.now();
   const nomPage = document.title || "Accueil";
+
   let notificationDepartEnvoyee = false;
-  let navigationInterne = false;
+  let notificationInactiviteEnvoyee = false;
+  let minuteurInactivite = null;
+  let minuteurPageMasquee = null;
+
+  /* Suivi du défilement */
+  let pourcentageMaximum = 0;
+  let dernierePositionY = window.scrollY;
+  let derniereDirection = "Aucun défilement";
+  let calculDefilementEnCours = false;
+
+  /* Suivi du formulaire */
+  let formulaireOuvert = false;
+  let formulaireEnvoye = false;
+  let dernierChampCommence = "";
+  const champsCommences = new Set();
+
+  /* =====================================================
+     OUTILS
+     ===================================================== */
 
   function preparerTitre(titre){
-    return titre.normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^\x20-\x7E]/g,"").slice(0,150);
+    return titre
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^\x20-\x7E]/g, "")
+      .slice(0, 150);
   }
 
-  function envoyerNotification(titre,message,tags,priorite){
-    fetch(urlNtfy,{
-      method:"POST",
-      headers:{
-        "Title":preparerTitre(titre),
-        "Priority":priorite || "default",
-        "Tags":tags || "eyes"
+  function envoyerNotification(titre, message, tags, priorite){
+    fetch(urlNtfy, {
+      method: "POST",
+      headers: {
+        "Title": preparerTitre(titre),
+        "Priority": priorite || "default",
+        "Tags": tags || "eyes"
       },
-      body:message,
-      keepalive:true
-    }).catch(function(){});
+      body: message,
+      keepalive: true
+    }).catch(function(error){
+      console.warn("Notification non envoyée :", error);
+    });
   }
 
   function calculerDuree(){
-    const total = Math.max(0,Math.round((Date.now()-debutVisite)/1000));
-    const h = Math.floor(total/3600);
-    const m = Math.floor((total%3600)/60);
-    const s = total%60;
-    if(h) return h+" h "+m+" min "+s+" s";
-    if(m) return m+" min "+s+" s";
-    return s+" secondes";
+    const total = Math.max(
+      0,
+      Math.round((Date.now() - debutVisite) / 1000)
+    );
+
+    const h = Math.floor(total / 3600);
+    const m = Math.floor((total % 3600) / 60);
+    const s = total % 60;
+
+    if(h){
+      return h + " h " + m + " min " + s + " s";
+    }
+
+    if(m){
+      return m + " min " + s + " s";
+    }
+
+    return s + " seconde" + (s > 1 ? "s" : "");
   }
 
   function informationsPage(){
     const params = new URLSearchParams(location.search);
+
     const infos = [
-      "Page : "+nomPage,
-      "Adresse : "+location.href,
-      "Provenance : "+(document.referrer || "Accès direct ou provenance inconnue"),
-      "Heure : "+new Date().toLocaleString("fr-FR"),
-      "Appareil : "+navigator.userAgent
+      "Page : " + nomPage,
+      "Adresse : " + location.href,
+      "Provenance : " +
+        (document.referrer || "Accès direct ou provenance inconnue"),
+      "Heure : " + new Date().toLocaleString("fr-FR"),
+      "Appareil : " + navigator.userAgent
     ];
-    if(params.get("gclid")) infos.splice(3,0,"Origine publicitaire : Google Ads\nGCLID détecté : Oui");
-    if(params.get("utm_source")) infos.splice(3,0,"Source publicitaire : "+params.get("utm_source"));
-    if(params.get("utm_medium")) infos.splice(4,0,"Support publicitaire : "+params.get("utm_medium"));
-    if(params.get("utm_campaign")) infos.splice(5,0,"Campagne : "+params.get("utm_campaign"));
-    if(params.get("utm_term")) infos.splice(6,0,"Mot-clé : "+params.get("utm_term"));
+
+    if(params.get("gclid")){
+      infos.splice(
+        3,
+        0,
+        "Origine publicitaire : Google Ads\nGCLID détecté : Oui"
+      );
+    }
+
+    if(params.get("utm_source")){
+      infos.splice(
+        3,
+        0,
+        "Source publicitaire : " + params.get("utm_source")
+      );
+    }
+
+    if(params.get("utm_medium")){
+      infos.splice(
+        4,
+        0,
+        "Support publicitaire : " + params.get("utm_medium")
+      );
+    }
+
+    if(params.get("utm_campaign")){
+      infos.splice(
+        5,
+        0,
+        "Campagne : " + params.get("utm_campaign")
+      );
+    }
+
+    if(params.get("utm_term")){
+      infos.splice(
+        6,
+        0,
+        "Mot-clé : " + params.get("utm_term")
+      );
+    }
+
     return infos.join("\n");
   }
 
-  envoyerNotification("Nouvelle visite - "+nomPage,informationsPage(),"eyes,house","default");
+  /* =====================================================
+     SUIVI DU DÉFILEMENT
+     ===================================================== */
+
+  function calculerPourcentageDefilement(){
+    const hauteurDocument = Math.max(
+      document.body.scrollHeight,
+      document.documentElement.scrollHeight,
+      document.body.offsetHeight,
+      document.documentElement.offsetHeight,
+      document.body.clientHeight,
+      document.documentElement.clientHeight
+    );
+
+    const hauteurVisible = window.innerHeight;
+    const hauteurDefilable = hauteurDocument - hauteurVisible;
+
+    if(hauteurDefilable <= 0){
+      return 100;
+    }
+
+    return Math.min(
+      100,
+      Math.max(
+        0,
+        Math.round((window.scrollY / hauteurDefilable) * 100)
+      )
+    );
+  }
+
+  function mettreAJourDefilement(){
+    const positionActuelle = window.scrollY;
+
+    if(positionActuelle > dernierePositionY){
+      derniereDirection = "Vers le bas";
+    }else if(positionActuelle < dernierePositionY){
+      derniereDirection = "Vers le haut";
+    }
+
+    dernierePositionY = positionActuelle;
+
+    const pourcentageActuel = calculerPourcentageDefilement();
+
+    if(pourcentageActuel > pourcentageMaximum){
+      pourcentageMaximum = pourcentageActuel;
+    }
+
+    calculDefilementEnCours = false;
+  }
+
+  window.addEventListener(
+    "scroll",
+    function(){
+      if(calculDefilementEnCours){
+        return;
+      }
+
+      calculDefilementEnCours = true;
+
+      window.requestAnimationFrame(mettreAJourDefilement);
+    },
+    { passive: true }
+  );
+
+  window.addEventListener(
+    "resize",
+    mettreAJourDefilement,
+    { passive: true }
+  );
+
+  mettreAJourDefilement();
+
+  /* =====================================================
+     RAPPORT DE COMPORTEMENT
+     ===================================================== */
+
+  function rapportComportement(){
+    const champs = Array.from(champsCommences);
+
+    const lignes = [
+      "Temps passé : " + calculerDuree(),
+      "Défilement maximal : " + pourcentageMaximum + " %",
+      "Dernier sens de défilement : " + derniereDirection,
+      "Formulaire ouvert : " + (formulaireOuvert ? "Oui" : "Non"),
+      "Formulaire envoyé : " + (formulaireEnvoye ? "Oui" : "Non")
+    ];
+
+    if(champs.length){
+      lignes.push("Champs commencés : " + champs.join(", "));
+    }else{
+      lignes.push("Champs commencés : Aucun");
+    }
+
+    if(formulaireOuvert && !formulaireEnvoye){
+      lignes.push(
+        "Formulaire abandonné : Oui"
+      );
+
+      lignes.push(
+        "Dernier champ commencé : " +
+        (dernierChampCommence || "Non identifié")
+      );
+    }else{
+      lignes.push("Formulaire abandonné : Non");
+    }
+
+    return lignes.join("\n");
+  }
+
+  /* =====================================================
+     NOTIFICATION D’ARRIVÉE
+     ===================================================== */
+
+  envoyerNotification(
+    "Nouvelle visite - " + nomPage,
+    informationsPage(),
+    "eyes,house",
+    "default"
+  );
+
+  /* =====================================================
+     VISITE TOUJOURS ACTIVE APRÈS 30 SECONDES
+     ===================================================== */
 
   setTimeout(function(){
-    if(document.visibilityState === "visible"){
+    if(
+      document.visibilityState === "visible" &&
+      !notificationDepartEnvoyee
+    ){
       envoyerNotification(
-        "Toujours sur la page - "+nomPage,
-        "Le visiteur est présent depuis au moins 30 secondes.\n\n"+informationsPage(),
+        "Toujours sur la page - " + nomPage,
+        "Le visiteur est présent depuis au moins 30 secondes." +
+        "\n\n" +
+        rapportComportement() +
+        "\n\n" +
+        informationsPage(),
         "hourglass_flowing_sand,eyes",
         "default"
       );
     }
-  },30000);
+  }, 30000);
 
-  document.addEventListener("click",function(event){
+  /* =====================================================
+     CLICS SUR APPELER, EMAIL ET DEVIS
+     ===================================================== */
+
+  document.addEventListener("click", function(event){
     const tel = event.target.closest('a[href^="tel:"]');
+
     if(tel){
       envoyerNotification(
-        "Clic sur Appeler - "+nomPage,
-        "Numéro appelé : "+tel.getAttribute("href").replace("tel:","")+
-        "\nTemps passé avant le clic : "+calculerDuree()+"\n\n"+informationsPage(),
-        "telephone,rotating_light","high"
+        "Clic sur Appeler - " + nomPage,
+        "Numéro appelé : " +
+        tel.getAttribute("href").replace("tel:", "") +
+        "\nTemps passé avant le clic : " +
+        calculerDuree() +
+        "\nDéfilement atteint : " +
+        pourcentageMaximum +
+        " %" +
+        "\n\n" +
+        informationsPage(),
+        "telephone,rotating_light",
+        "high"
       );
+
       return;
     }
 
     const email = event.target.closest('a[href^="mailto:"]');
+
     if(email){
       envoyerNotification(
-        "Clic sur Email - "+nomPage,
-        "Adresse e-mail : "+email.getAttribute("href").replace("mailto:","").split("?")[0]+
-        "\nTemps passé avant le clic : "+calculerDuree()+"\n\n"+informationsPage(),
-        "email,envelope","high"
+        "Clic sur Email - " + nomPage,
+        "Adresse e-mail : " +
+        email
+          .getAttribute("href")
+          .replace("mailto:", "")
+          .split("?")[0] +
+        "\nTemps passé avant le clic : " +
+        calculerDuree() +
+        "\nDéfilement atteint : " +
+        pourcentageMaximum +
+        " %" +
+        "\n\n" +
+        informationsPage(),
+        "email,envelope",
+        "high"
       );
+
       return;
     }
 
-    const bouton = event.target.closest("a,button");
-    if(!bouton) return;
-    const texte = (bouton.innerText || bouton.textContent || "").trim().toLowerCase();
-    const href = (bouton.getAttribute("href") || "").toLowerCase();
-    if((texte.includes("devis") || texte.includes("contact") || href.includes("devis") || href.includes("contact")) &&
-       !href.startsWith("tel:") && !href.startsWith("mailto:")){
+    const bouton = event.target.closest("a, button");
+
+    if(!bouton){
+      return;
+    }
+
+    const texte = (
+      bouton.innerText ||
+      bouton.textContent ||
+      ""
+    ).trim().toLowerCase();
+
+    const href = (
+      bouton.getAttribute("href") ||
+      ""
+    ).toLowerCase();
+
+    const boutonDevis =
+      texte.includes("devis") ||
+      texte.includes("contact") ||
+      href.includes("devis") ||
+      href.includes("contact");
+
+    if(
+      boutonDevis &&
+      !href.startsWith("tel:") &&
+      !href.startsWith("mailto:")
+    ){
       envoyerNotification(
-        "Interet pour un devis - "+nomPage,
-        "Bouton cliqué : "+((bouton.innerText || bouton.textContent || bouton.getAttribute("href") || "Devis / Contact").trim())+
-        "\nTemps passé avant le clic : "+calculerDuree()+"\n\n"+informationsPage(),
-        "memo,hammer","high"
+        "Interet pour un devis - " + nomPage,
+        "Bouton cliqué : " +
+        (
+          bouton.innerText ||
+          bouton.textContent ||
+          bouton.getAttribute("href") ||
+          "Devis / Contact"
+        ).trim() +
+        "\nTemps passé avant le clic : " +
+        calculerDuree() +
+        "\nDéfilement atteint : " +
+        pourcentageMaximum +
+        " %" +
+        "\n\n" +
+        informationsPage(),
+        "memo,hammer",
+        "high"
       );
     }
   });
 
-  document.querySelectorAll("form").forEach(function(form){
-    form.addEventListener("submit",function(){
+  /* =====================================================
+     SUIVI DU FORMULAIRE DE DEVIS
+     Aucun contenu saisi n’est enregistré
+     ===================================================== */
+
+  const devisForm = document.getElementById("devisForm");
+
+  function obtenirNomChamp(champ){
+    if(!champ){
+      return "Champ inconnu";
+    }
+
+    const labelParent = champ.closest("label");
+
+    if(labelParent){
+      const copieLabel = labelParent.cloneNode(true);
+
+      copieLabel
+        .querySelectorAll("input, textarea, select, button")
+        .forEach(function(element){
+          element.remove();
+        });
+
+      const texteLabel = copieLabel.textContent.trim();
+
+      if(texteLabel){
+        return texteLabel;
+      }
+    }
+
+    return (
+      champ.getAttribute("aria-label") ||
+      champ.getAttribute("placeholder") ||
+      champ.getAttribute("name") ||
+      "Champ sans nom"
+    );
+  }
+
+  function enregistrerOuvertureFormulaire(){
+    if(formulaireOuvert){
+      return;
+    }
+
+    formulaireOuvert = true;
+
+    envoyerNotification(
+      "Formulaire ouvert - " + nomPage,
+      "Le visiteur a commencé à utiliser le formulaire." +
+      "\nTemps passé avant l’ouverture : " +
+      calculerDuree() +
+      "\nDéfilement atteint : " +
+      pourcentageMaximum +
+      " %" +
+      "\n\n" +
+      informationsPage(),
+      "memo,eyes",
+      "default"
+    );
+  }
+
+  if(devisForm){
+    devisForm.addEventListener(
+      "focusin",
+      enregistrerOuvertureFormulaire
+    );
+
+    devisForm.addEventListener(
+      "click",
+      enregistrerOuvertureFormulaire
+    );
+
+    devisForm
+      .querySelectorAll("input, textarea, select")
+      .forEach(function(champ){
+        if(
+          champ.type === "hidden" ||
+          champ.type === "submit" ||
+          champ.type === "button"
+        ){
+          return;
+        }
+
+        function enregistrerDebutChamp(){
+          enregistrerOuvertureFormulaire();
+
+          const nomChamp = obtenirNomChamp(champ);
+
+          dernierChampCommence = nomChamp;
+
+          if(champsCommences.has(nomChamp)){
+            return;
+          }
+
+          champsCommences.add(nomChamp);
+
+          envoyerNotification(
+            "Champ commence - " + nomPage,
+            "Champ commencé : " +
+            nomChamp +
+            "\nTemps passé : " +
+            calculerDuree() +
+            "\nDéfilement atteint : " +
+            pourcentageMaximum +
+            " %" +
+            "\n\nAucune information saisie n’a été enregistrée.",
+            "pencil,memo",
+            "default"
+          );
+        }
+
+        champ.addEventListener(
+          "focus",
+          enregistrerDebutChamp
+        );
+
+        champ.addEventListener(
+          "input",
+          enregistrerDebutChamp,
+          { once: true }
+        );
+
+        champ.addEventListener(
+          "change",
+          enregistrerDebutChamp,
+          { once: true }
+        );
+      });
+
+    devisForm.addEventListener("submit", function(){
+      formulaireEnvoye = true;
+
       envoyerNotification(
-        "Formulaire envoye - "+nomPage,
-        "Un visiteur vient d’envoyer un formulaire.\nTemps passé avant l’envoi : "+calculerDuree()+"\n\n"+informationsPage(),
-        "white_check_mark,memo","urgent"
+        "Formulaire envoye - " + nomPage,
+        "Un visiteur vient d’envoyer le formulaire." +
+        "\n\n" +
+        rapportComportement() +
+        "\n\n" +
+        informationsPage(),
+        "white_check_mark,memo",
+        "urgent"
       );
     });
+  }
+
+  /* =====================================================
+     INACTIVITÉ DE 10 SECONDES
+     ===================================================== */
+
+  function relancerMinuteurInactivite(){
+    clearTimeout(minuteurInactivite);
+
+    notificationInactiviteEnvoyee = false;
+
+    minuteurInactivite = setTimeout(function(){
+      if(
+        notificationInactiviteEnvoyee ||
+        notificationDepartEnvoyee ||
+        document.visibilityState !== "visible"
+      ){
+        return;
+      }
+
+      notificationInactiviteEnvoyee = true;
+
+      envoyerNotification(
+        "Visiteur inactif - " + nomPage,
+        "Aucune activité détectée depuis 10 secondes." +
+        "\n\n" +
+        rapportComportement() +
+        "\n\n" +
+        informationsPage(),
+        "zzz,eyes",
+        "default"
+      );
+    }, 10000);
+  }
+
+  [
+    "mousemove",
+    "mousedown",
+    "keydown",
+    "touchstart",
+    "scroll",
+    "click"
+  ].forEach(function(nomEvenement){
+    window.addEventListener(
+      nomEvenement,
+      relancerMinuteurInactivite,
+      { passive: true }
+    );
   });
 
-  document.addEventListener("click",function(event){
-    const lien = event.target.closest("a[href]");
-    if(!lien) return;
-    const href = lien.getAttribute("href");
-    if(!href || href.startsWith("#") || href.startsWith("tel:") || href.startsWith("mailto:")) return;
-    try{
-      const destination = new URL(href,location.href);
-      navigationInterne = destination.origin === location.origin && lien.target !== "_blank" && !lien.hasAttribute("download");
-      if(navigationInterne) setTimeout(function(){ navigationInterne = false; },2000);
-    }catch(e){}
-  },true);
+  relancerMinuteurInactivite();
 
-  window.addEventListener("pagehide",function(){
-    if(notificationDepartEnvoyee || navigationInterne) return;
+  /* =====================================================
+     FIN DE VISITE
+     ===================================================== */
+
+  function envoyerFinVisite(raison){
+    if(notificationDepartEnvoyee){
+      return;
+    }
+
     notificationDepartEnvoyee = true;
+
+    clearTimeout(minuteurInactivite);
+    clearTimeout(minuteurPageMasquee);
+
+    mettreAJourDefilement();
+
     envoyerNotification(
-      "Visiteur parti - "+nomPage,
-      "Temps passé sur la page : "+calculerDuree()+"\n\n"+informationsPage(),
-      "door,walking","default"
+      "Visiteur parti - " + nomPage,
+      "Raison détectée : " +
+      raison +
+      "\n\n" +
+      rapportComportement() +
+      "\n\n" +
+      informationsPage(),
+      "door,walking",
+      "default"
     );
+  }
+
+  /*
+    Détection principale lors de la fermeture,
+    du changement de page ou du retour arrière.
+  */
+  window.addEventListener("pagehide", function(){
+    envoyerFinVisite(
+      "Page fermée, quittée ou changement de page"
+    );
+  });
+
+  /*
+    Sur téléphone, le navigateur peut seulement passer
+    en arrière-plan sans déclencher immédiatement pagehide.
+  */
+  document.addEventListener("visibilitychange", function(){
+    if(document.visibilityState === "hidden"){
+      clearTimeout(minuteurPageMasquee);
+
+      minuteurPageMasquee = setTimeout(function(){
+        envoyerFinVisite(
+          "Onglet quitté ou navigateur passé en arrière-plan"
+        );
+      }, 3000);
+    }else{
+      clearTimeout(minuteurPageMasquee);
+      relancerMinuteurInactivite();
+    }
   });
 })();
 </script>
