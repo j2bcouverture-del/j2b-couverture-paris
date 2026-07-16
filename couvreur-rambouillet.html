@@ -510,7 +510,1006 @@
         </div>
       </div>
     </section>
+<!-- =========================================================
+SIMULATEUR 3D TOITURE J2B — VERSION CORRIGÉE IPHONE
+========================================================= -->
 
+<section class="section soft" id="simulateur-3d">
+  <div class="container">
+    <div class="section-head reveal">
+      <div>
+        <span class="eyebrow">Visualisation interactive</span>
+        <h2 style="margin-top:14px">Découvrez une rénovation de toiture étape par étape.</h2>
+      </div>
+      <p class="muted">Faites glisser la maison avec votre doigt pour la tourner et utilisez les boutons pour afficher chaque couche de la toiture.</p>
+    </div>
+
+    <div class="j2b3d-app reveal">
+      <aside class="j2b3d-steps" id="j2b3dSteps"></aside>
+
+      <div class="j2b3d-viewer">
+        <div id="j2b3dScene" aria-label="Maison 3D interactive"></div>
+
+        <div class="j2b3d-badge">Vue 3D interactive</div>
+        <div class="j2b3d-help">Glissez pour tourner • Pincez pour zoomer</div>
+
+        <div class="j2b3d-description">
+          <strong id="j2b3dTitle">Toiture existante</strong>
+          <p id="j2b3dText">Ancienne toiture avec quelques tuiles vieillies et un peu de mousse.</p>
+        </div>
+
+        <div class="j2b3d-controls">
+          <button type="button" id="j2b3dPrevious" class="j2b3d-button">← Précédent</button>
+          <div id="j2b3dProgress" class="j2b3d-progress"></div>
+          <button type="button" id="j2b3dNext" class="j2b3d-button j2b3d-primary">Étape suivante →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .j2b3d-app{
+    min-height:740px;
+    display:grid;
+    grid-template-columns:280px minmax(0,1fr);
+    overflow:hidden;
+    border:1px solid var(--line);
+    border-radius:26px;
+    background:#fff;
+    box-shadow:var(--shadow);
+  }
+
+  .j2b3d-steps{
+    padding:15px;
+    border-right:1px solid var(--line);
+    background:#fff;
+  }
+
+  .j2b3d-step{
+    width:100%;
+    display:grid;
+    grid-template-columns:42px 1fr;
+    align-items:center;
+    gap:11px;
+    margin-bottom:6px;
+    padding:13px 11px;
+    border:0;
+    border-radius:15px;
+    background:transparent;
+    color:var(--ink);
+    text-align:left;
+    cursor:pointer;
+    transition:.2s ease;
+  }
+
+  .j2b3d-step:hover{background:#f1f5f9}
+
+  .j2b3d-step.active{
+    color:#fff;
+    background:linear-gradient(135deg,#ff8a00,#e96e00);
+    box-shadow:0 12px 26px rgba(239,125,0,.28);
+  }
+
+  .j2b3d-step > span{
+    width:40px;
+    height:40px;
+    display:grid;
+    place-items:center;
+    border-radius:50%;
+    background:#e5e7eb;
+    color:#334155;
+    font-weight:950;
+  }
+
+  .j2b3d-step.active > span{
+    background:#fff;
+    color:#e96e00;
+  }
+
+  .j2b3d-step strong{display:block;font-size:.92rem;line-height:1.2}
+  .j2b3d-step small{display:block;margin-top:4px;opacity:.76;line-height:1.25}
+
+  .j2b3d-viewer{
+    position:relative;
+    min-width:0;
+    min-height:740px;
+    overflow:hidden;
+    background:radial-gradient(circle at 50% 30%,#fff 0%,#f8fafc 48%,#e5edf5 100%);
+  }
+
+  #j2b3dScene{
+    position:absolute;
+    inset:0 0 126px;
+    touch-action:none;
+  }
+
+  #j2b3dScene canvas{
+    display:block;
+    width:100%;
+    height:100%;
+  }
+
+  .j2b3d-badge,
+  .j2b3d-help{
+    position:absolute;
+    top:16px;
+    z-index:4;
+    padding:9px 12px;
+    border-radius:999px;
+    font-size:.8rem;
+    font-weight:900;
+    backdrop-filter:blur(8px);
+  }
+
+  .j2b3d-badge{
+    right:16px;
+    color:#fff;
+    background:rgba(7,25,46,.9);
+  }
+
+  .j2b3d-help{
+    left:16px;
+    color:#526077;
+    background:rgba(255,255,255,.9);
+    border:1px solid var(--line);
+  }
+
+  .j2b3d-description{
+    position:absolute;
+    left:50%;
+    bottom:136px;
+    z-index:4;
+    width:min(570px,86%);
+    padding:16px 20px;
+    transform:translateX(-50%);
+    border:1px solid var(--line);
+    border-radius:18px;
+    background:rgba(255,255,255,.94);
+    box-shadow:0 14px 36px rgba(15,23,42,.1);
+    backdrop-filter:blur(12px);
+  }
+
+  .j2b3d-description strong{display:block;color:var(--navy);font-size:1.08rem}
+  .j2b3d-description p{margin:6px 0 0;color:var(--muted);line-height:1.5}
+
+  .j2b3d-controls{
+    position:absolute;
+    left:0;
+    right:0;
+    bottom:0;
+    z-index:5;
+    min-height:126px;
+    display:grid;
+    grid-template-columns:auto 1fr auto;
+    align-items:center;
+    gap:16px;
+    padding:22px 24px;
+    border-top:1px solid var(--line);
+    background:rgba(255,255,255,.98);
+  }
+
+  .j2b3d-button{
+    padding:13px 16px;
+    border:0;
+    border-radius:13px;
+    background:#e5e7eb;
+    color:#475569;
+    font-weight:950;
+    cursor:pointer;
+  }
+
+  .j2b3d-button.j2b3d-primary{background:var(--navy);color:#fff}
+  .j2b3d-button:disabled{opacity:.4;cursor:not-allowed}
+
+  .j2b3d-progress{display:flex;align-items:center;justify-content:center}
+
+  .j2b3d-dot{
+    width:15px;
+    height:15px;
+    padding:0;
+    border:0;
+    border-radius:50%;
+    background:#d1d5db;
+  }
+
+  .j2b3d-dot.active{
+    background:#ef7d00;
+    box-shadow:0 0 0 5px rgba(239,125,0,.13);
+  }
+
+  .j2b3d-line{
+    width:min(5vw,62px);
+    height:3px;
+    background:#d1d5db;
+  }
+
+  .j2b3d-error{
+    position:absolute;
+    inset:0;
+    display:grid;
+    place-items:center;
+    padding:30px;
+    color:#991b1b;
+    text-align:center;
+    font-weight:800;
+  }
+
+  @media(max-width:950px){
+    .j2b3d-app{
+      grid-template-columns:1fr;
+      min-height:870px;
+    }
+
+    .j2b3d-steps{
+      display:grid;
+      grid-template-columns:repeat(7,1fr);
+      overflow-x:auto;
+      padding:10px;
+      border-right:0;
+      border-bottom:1px solid var(--line);
+    }
+
+    .j2b3d-step{
+      display:flex;
+      justify-content:center;
+      min-width:54px;
+      padding:8px;
+    }
+
+    .j2b3d-step div{display:none}
+    .j2b3d-viewer{min-height:770px}
+  }
+
+  @media(max-width:700px){
+    .j2b3d-app{
+      min-height:710px;
+      margin-left:-4%;
+      margin-right:-4%;
+      border-left:0;
+      border-right:0;
+      border-radius:0;
+    }
+
+    .j2b3d-viewer{min-height:650px}
+    #j2b3dScene{inset:0 0 140px}
+    .j2b3d-help{display:none}
+    .j2b3d-badge{top:10px;right:10px;font-size:.72rem}
+
+    .j2b3d-description{
+      bottom:148px;
+      width:92%;
+      padding:13px 15px;
+    }
+
+    .j2b3d-controls{
+      min-height:140px;
+      padding:16px 10px 78px;
+      gap:7px;
+    }
+
+    .j2b3d-button{
+      padding:11px 8px;
+      font-size:.76rem;
+    }
+
+    .j2b3d-dot{
+      width:11px;
+      height:11px;
+    }
+
+    .j2b3d-line{width:12px}
+  }
+</style>
+
+<script type="module">
+(async function(){
+  const sceneBox = document.getElementById("j2b3dScene");
+  if(!sceneBox) return;
+
+  try{
+    const THREE = await import("https://esm.sh/three@0.166.1");
+
+    const stages = [
+      ["Toiture existante","Tuiles vieillies, quelques fissures et présence légère de mousse."],
+      ["Dépose des tuiles","L’ancienne couverture est retirée pour laisser apparaître le support bois."],
+      ["Écran sous-toiture","Une membrane de protection est posée sur les deux versants."],
+      ["Liteaux et contre-liteaux","Le support ventilé est créé avant la pose des nouvelles tuiles."],
+      ["Nouvelles tuiles","La couverture neuve est posée sur l’ensemble de la toiture."],
+      ["Faîtage","Le sommet du toit est terminé avec les éléments faîtiers."],
+      ["Résultat final","La maison retrouve une toiture propre, durable et protégée."]
+    ];
+
+    const subtitles = [
+      "État actuel",
+      "Ancienne couverture retirée",
+      "Protection contre les intempéries",
+      "Support ventilé",
+      "Couverture neuve",
+      "Étanchéité du sommet",
+      "Toiture rénovée"
+    ];
+
+    const stepsBox = document.getElementById("j2b3dSteps");
+    const progressBox = document.getElementById("j2b3dProgress");
+    const titleBox = document.getElementById("j2b3dTitle");
+    const textBox = document.getElementById("j2b3dText");
+    const previous = document.getElementById("j2b3dPrevious");
+    const next = document.getElementById("j2b3dNext");
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0xf3f6fa);
+
+    const camera = new THREE.PerspectiveCamera(42,1,.1,100);
+    camera.position.set(10,7.5,12);
+
+    const renderer = new THREE.WebGLRenderer({
+      antialias:true,
+      alpha:false
+    });
+
+    renderer.setPixelRatio(
+      Math.min(window.devicePixelRatio || 1,2)
+    );
+
+    renderer.shadowMap.enabled = true;
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    sceneBox.appendChild(renderer.domElement);
+
+    scene.add(
+      new THREE.HemisphereLight(
+        0xffffff,
+        0x8aa079,
+        2.15
+      )
+    );
+
+    const sun = new THREE.DirectionalLight(
+      0xffffff,
+      2.8
+    );
+
+    sun.position.set(8,13,10);
+    sun.castShadow = true;
+    scene.add(sun);
+
+    const world = new THREE.Group();
+    world.rotation.y = -.45;
+    scene.add(world);
+
+    const ground = new THREE.Mesh(
+      new THREE.CircleGeometry(9.2,64),
+      new THREE.MeshStandardMaterial({
+        color:0xb9cba8,
+        roughness:1
+      })
+    );
+
+    ground.rotation.x = -Math.PI/2;
+    ground.receiveShadow = true;
+    world.add(ground);
+
+    function box(w,h,d,color,x,y,z,parent=world){
+      const mesh = new THREE.Mesh(
+        new THREE.BoxGeometry(w,h,d),
+        new THREE.MeshStandardMaterial({
+          color,
+          roughness:.86
+        })
+      );
+
+      mesh.position.set(x,y,z);
+      mesh.castShadow = true;
+      mesh.receiveShadow = true;
+      parent.add(mesh);
+      return mesh;
+    }
+
+    box(7.4,3.2,5.6,0xd8c7b1,0,1.65,0);
+    box(2.6,2.4,3.4,0xc7b396,4.7,1.25,.75);
+    box(1.0,2.1,.12,0x704a31,0,1.12,2.86);
+    box(1.15,1.18,.10,0xbfd7e4,-2.25,1.65,2.87);
+    box(1.15,1.18,.10,0xbfd7e4,2.25,1.65,2.87);
+    box(.12,2.0,2.0,0x4b5563,6.02,1.05,.75);
+    box(.78,2.0,.78,0xcfc6ba,-1.45,4.8,-.35);
+    box(.98,.18,.98,0x7f4f33,-1.45,5.82,-.35);
+
+    const bushes = [
+      [-4.8,-2,.72],
+      [-5,1.6,.6],
+      [5.1,-2.3,.76],
+      [4.9,3,.58],
+      [-2.6,4,.5],
+      [2.4,4,.5]
+    ];
+
+    bushes.forEach(([x,z,r])=>{
+      const bush = new THREE.Mesh(
+        new THREE.SphereGeometry(r,20,14),
+        new THREE.MeshStandardMaterial({
+          color:0x4f7b43,
+          roughness:1
+        })
+      );
+
+      bush.position.set(x,r*.8,z);
+      bush.castShadow = true;
+      world.add(bush);
+    });
+
+    const roof = {
+      old:new THREE.Group(),
+      timber:new THREE.Group(),
+      membrane:new THREE.Group(),
+      battens:new THREE.Group(),
+      fresh:new THREE.Group(),
+      ridge:new THREE.Group()
+    };
+
+    Object.values(roof).forEach(group=>{
+      world.add(group);
+    });
+
+    const slope = THREE.MathUtils.degToRad(35);
+    const roofWidth = 8.4;
+    const roofSlopeLength = 3.85;
+
+    function roofPlane(material,side,heightOffset=0){
+      const mesh = new THREE.Mesh(
+        new THREE.BoxGeometry(
+          roofWidth,
+          .14,
+          roofSlopeLength
+        ),
+        material
+      );
+
+      mesh.rotation.x = side*slope;
+
+      mesh.position.set(
+        0,
+        4.25+heightOffset,
+        side*1.48
+      );
+
+      mesh.castShadow = true;
+      mesh.receiveShadow = true;
+      return mesh;
+    }
+
+    function tileTexture(old){
+      const canvas = document.createElement("canvas");
+      canvas.width = 512;
+      canvas.height = 512;
+
+      const context = canvas.getContext("2d");
+
+      context.fillStyle = old
+        ? "#8f5036"
+        : "#b96640";
+
+      context.fillRect(0,0,512,512);
+
+      for(let y=0;y<512;y+=42){
+        for(let x=0;x<512;x+=46){
+          context.strokeStyle = old
+            ? "#603624"
+            : "#7a3f29";
+
+          context.lineWidth = 3;
+          context.strokeRect(x,y,44,40);
+
+          context.beginPath();
+          context.arc(
+            x+22,
+            y+5,
+            18,
+            0,
+            Math.PI
+          );
+          context.stroke();
+        }
+      }
+
+      if(old){
+        context.fillStyle =
+          "rgba(68,100,49,.44)";
+
+        context.beginPath();
+        context.ellipse(
+          125,165,62,35,
+          0,0,Math.PI*2
+        );
+        context.fill();
+
+        context.beginPath();
+        context.ellipse(
+          385,330,70,40,
+          0,0,Math.PI*2
+        );
+        context.fill();
+      }
+
+      const texture = new THREE.CanvasTexture(canvas);
+      texture.wrapS = THREE.RepeatWrapping;
+      texture.wrapT = THREE.RepeatWrapping;
+      texture.repeat.set(3.7,2.4);
+      texture.colorSpace = THREE.SRGBColorSpace;
+
+      return texture;
+    }
+
+    const oldMaterial =
+      new THREE.MeshStandardMaterial({
+        map:tileTexture(true),
+        roughness:.96
+      });
+
+    const newMaterial =
+      new THREE.MeshStandardMaterial({
+        map:tileTexture(false),
+        roughness:.9
+      });
+
+    const timberMaterial =
+      new THREE.MeshStandardMaterial({
+        color:0xa97849,
+        roughness:1
+      });
+
+    const membraneMaterial =
+      new THREE.MeshStandardMaterial({
+        color:0x596575,
+        roughness:.9
+      });
+
+    const battenMaterial =
+      new THREE.MeshStandardMaterial({
+        color:0x87532f,
+        roughness:1
+      });
+
+    [-1,1].forEach(side=>{
+      roof.old.add(
+        roofPlane(oldMaterial,side,0)
+      );
+
+      roof.timber.add(
+        roofPlane(timberMaterial,side,-.03)
+      );
+
+      roof.membrane.add(
+        roofPlane(membraneMaterial,side,.01)
+      );
+
+      roof.fresh.add(
+        roofPlane(newMaterial,side,.03)
+      );
+
+      const battenGroup =
+        new THREE.Group();
+
+      for(let index=-3;index<=3;index++){
+        const horizontal =
+          new THREE.Mesh(
+            new THREE.BoxGeometry(
+              roofWidth,
+              .10,
+              .10
+            ),
+            battenMaterial
+          );
+
+        horizontal.rotation.x =
+          side*slope;
+
+        horizontal.position.set(
+          0,
+          4.36,
+          side*1.48+index*.48
+        );
+
+        horizontal.castShadow = true;
+        battenGroup.add(horizontal);
+      }
+
+      for(let index=-4;index<=4;index++){
+        const vertical =
+          new THREE.Mesh(
+            new THREE.BoxGeometry(
+              .10,
+              .10,
+              roofSlopeLength
+            ),
+            battenMaterial
+          );
+
+        vertical.rotation.x =
+          side*slope;
+
+        vertical.position.set(
+          index*.9,
+          4.37,
+          side*1.48
+        );
+
+        vertical.castShadow = true;
+        battenGroup.add(vertical);
+      }
+
+      roof.battens.add(battenGroup);
+    });
+
+    const ridge = new THREE.Mesh(
+      new THREE.CylinderGeometry(
+        .20,
+        .20,
+        8.55,
+        22
+      ),
+      new THREE.MeshStandardMaterial({
+        color:0x984d31,
+        roughness:.9
+      })
+    );
+
+    ridge.rotation.z = Math.PI/2;
+    ridge.position.set(0,5.48,0);
+    ridge.castShadow = true;
+    roof.ridge.add(ridge);
+
+    const garageRoof = new THREE.Mesh(
+      new THREE.ConeGeometry(
+        2.3,
+        1.1,
+        4
+      ),
+      new THREE.MeshStandardMaterial({
+        color:0x9e5438,
+        roughness:.95
+      })
+    );
+
+    garageRoof.position.set(
+      4.7,
+      3.0,
+      .75
+    );
+
+    garageRoof.rotation.y =
+      Math.PI/4;
+
+    garageRoof.castShadow = true;
+    world.add(garageRoof);
+
+    let currentStage = 0;
+
+    stages.forEach((stage,index)=>{
+      const button =
+        document.createElement("button");
+
+      button.type = "button";
+      button.className = "j2b3d-step";
+
+      button.innerHTML = `
+        <span>${index+1}</span>
+        <div>
+          <strong>${stage[0]}</strong>
+          <small>${subtitles[index]}</small>
+        </div>
+      `;
+
+      button.addEventListener(
+        "click",
+        ()=>setStage(index)
+      );
+
+      stepsBox.appendChild(button);
+
+      const dot =
+        document.createElement("button");
+
+      dot.type = "button";
+      dot.className = "j2b3d-dot";
+
+      dot.setAttribute(
+        "aria-label",
+        "Étape "+(index+1)
+      );
+
+      dot.addEventListener(
+        "click",
+        ()=>setStage(index)
+      );
+
+      progressBox.appendChild(dot);
+
+      if(index<stages.length-1){
+        const line =
+          document.createElement("span");
+
+        line.className =
+          "j2b3d-line";
+
+        progressBox.appendChild(line);
+      }
+    });
+
+    function setStage(index){
+      currentStage = Math.max(
+        0,
+        Math.min(
+          index,
+          stages.length-1
+        )
+      );
+
+      roof.old.visible =
+        currentStage===0;
+
+      roof.timber.visible =
+        currentStage===1;
+
+      roof.membrane.visible =
+        currentStage===2 ||
+        currentStage===3;
+
+      roof.battens.visible =
+        currentStage===3;
+
+      roof.fresh.visible =
+        currentStage>=4;
+
+      roof.ridge.visible =
+        currentStage>=5;
+
+      document
+        .querySelectorAll(".j2b3d-step")
+        .forEach((element,elementIndex)=>{
+          element.classList.toggle(
+            "active",
+            elementIndex===currentStage
+          );
+        });
+
+      document
+        .querySelectorAll(".j2b3d-dot")
+        .forEach((element,elementIndex)=>{
+          element.classList.toggle(
+            "active",
+            elementIndex===currentStage
+          );
+        });
+
+      titleBox.textContent =
+        stages[currentStage][0];
+
+      textBox.textContent =
+        stages[currentStage][1];
+
+      previous.disabled =
+        currentStage===0;
+
+      next.disabled =
+        currentStage===stages.length-1;
+
+      next.textContent =
+        currentStage===stages.length-1
+          ? "Rénovation terminée ✓"
+          : "Étape suivante →";
+    }
+
+    previous.addEventListener(
+      "click",
+      ()=>setStage(currentStage-1)
+    );
+
+    next.addEventListener(
+      "click",
+      ()=>setStage(currentStage+1)
+    );
+
+    let dragging = false;
+    let lastX = 0;
+    let lastY = 0;
+    let targetRotationX = -.12;
+    let targetRotationY = -.45;
+    let cameraDistance = 12;
+
+    function pointerDown(event){
+      dragging = true;
+      lastX = event.clientX;
+      lastY = event.clientY;
+
+      renderer.domElement
+        .setPointerCapture?.(
+          event.pointerId
+        );
+    }
+
+    function pointerMove(event){
+      if(!dragging) return;
+
+      const deltaX =
+        event.clientX-lastX;
+
+      const deltaY =
+        event.clientY-lastY;
+
+      lastX = event.clientX;
+      lastY = event.clientY;
+
+      targetRotationY +=
+        deltaX*.008;
+
+      targetRotationX +=
+        deltaY*.005;
+
+      targetRotationX = Math.max(
+        -.35,
+        Math.min(
+          .28,
+          targetRotationX
+        )
+      );
+    }
+
+    function pointerUp(){
+      dragging = false;
+    }
+
+    renderer.domElement.addEventListener(
+      "pointerdown",
+      pointerDown
+    );
+
+    renderer.domElement.addEventListener(
+      "pointermove",
+      pointerMove
+    );
+
+    renderer.domElement.addEventListener(
+      "pointerup",
+      pointerUp
+    );
+
+    renderer.domElement.addEventListener(
+      "pointercancel",
+      pointerUp
+    );
+
+    renderer.domElement.addEventListener(
+      "wheel",
+      event=>{
+        event.preventDefault();
+
+        cameraDistance +=
+          event.deltaY*.01;
+
+        cameraDistance = Math.max(
+          8,
+          Math.min(
+            18,
+            cameraDistance
+          )
+        );
+      },
+      {passive:false}
+    );
+
+    let pinchDistance = null;
+
+    renderer.domElement.addEventListener(
+      "touchmove",
+      event=>{
+        if(event.touches.length===2){
+          const first =
+            event.touches[0];
+
+          const second =
+            event.touches[1];
+
+          const distance =
+            Math.hypot(
+              first.clientX-second.clientX,
+              first.clientY-second.clientY
+            );
+
+          if(pinchDistance!==null){
+            cameraDistance -=
+              (distance-pinchDistance)*.02;
+
+            cameraDistance = Math.max(
+              8,
+              Math.min(
+                18,
+                cameraDistance
+              )
+            );
+          }
+
+          pinchDistance = distance;
+        }
+      },
+      {passive:true}
+    );
+
+    renderer.domElement.addEventListener(
+      "touchend",
+      ()=>{
+        pinchDistance = null;
+      }
+    );
+
+    function resizeScene(){
+      const width =
+        sceneBox.clientWidth;
+
+      const height =
+        sceneBox.clientHeight;
+
+      camera.aspect =
+        width/height;
+
+      camera.updateProjectionMatrix();
+
+      renderer.setSize(
+        width,
+        height,
+        false
+      );
+    }
+
+    window.addEventListener(
+      "resize",
+      resizeScene
+    );
+
+    resizeScene();
+    setStage(0);
+
+    function animate(){
+      requestAnimationFrame(animate);
+
+      world.rotation.y +=
+        (
+          targetRotationY-
+          world.rotation.y
+        )*.08;
+
+      world.rotation.x +=
+        (
+          targetRotationX-
+          world.rotation.x
+        )*.08;
+
+      camera.position.set(
+        0,
+        6.7,
+        cameraDistance
+      );
+
+      camera.lookAt(0,2,0);
+
+      renderer.render(
+        scene,
+        camera
+      );
+    }
+
+    animate();
+
+  }catch(error){
+    console.error(
+      "Erreur simulateur 3D :",
+      error
+    );
+
+    sceneBox.innerHTML =
+      '<div class="j2b3d-error">Le simulateur 3D n’a pas pu se charger. Vérifiez la connexion Internet, puis actualisez la page.</div>';
+  }
+})();
+</script>
     <section class="section soft" id="zone">
       <div class="container">
         <div class="section-head reveal"><div><span class="eyebrow">Zone d’intervention</span><h2 style="margin-top:14px">Couvreur à Rambouillet et autour.</h2></div><p class="muted">La page est spécialement conçue pour les demandes venant de Rambouillet et du secteur proche.</p></div>
