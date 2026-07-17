@@ -397,49 +397,18 @@ box-shadow:0 14px 28px rgba(0,0,0,.18);
 .section-intro{max-width:900px;margin:18px auto 35px;text-align:center;line-height:1.7;}
 
 
-    /* Sous-catégories du menu Pages locales */
-    .menuSub.open{
-      display:block;
     }
-    .menuSubGroup + .menuSubGroup{
-      margin-top:14px;
-      padding-top:14px;
-      border-top:1px solid var(--border);
+
+  
+    /* Menu simplifié des départements */
+    #localitesSub{
+      grid-template-columns:1fr;
+      gap:10px;
     }
-    .menuSubTitle{
-      padding:2px 4px 9px;
-      color:var(--navy);
-      font-size:.9rem;
-      font-weight:1000;
-    }
-    .menuSubLinks{
-      display:grid;
-      grid-template-columns:repeat(2,minmax(0,1fr));
-      gap:8px;
-    }
-    .menuSubLinks a{
-      min-height:42px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:9px 10px;
-      border-radius:10px;
+    #localitesSub a{
+      min-height:48px;
+      font-size:.95rem;
       background:#fff;
-      border:1px solid var(--border);
-      font-weight:800;
-      font-size:.88rem;
-      text-align:center;
-      line-height:1.2;
-    }
-    .menuSubLinks a:hover{
-      border-color:var(--blue);
-      color:var(--blue);
-      background:#eff6ff;
-    }
-    @media(max-width:480px){
-      .menuSubLinks{
-        grid-template-columns:1fr;
-      }
     }
 
   </style>
@@ -502,22 +471,9 @@ box-shadow:0 14px 28px rgba(0,0,0,.18);
         </button>
 
         <div class="menuSub" id="localitesSub">
-
-          <div class="menuSubGroup">
-            <div class="menuSubTitle">📍 Yvelines (78)</div>
-            <div class="menuSubLinks">
-              <a href="/couvreur-versailles">Versailles</a>
-              <a href="/couvreur-le-chesnay-rocquencourt">Le Chesnay-Rocquencourt</a>
-              <a href="/couvreur-saint-germain-en-laye">Saint-Germain-en-Laye</a>
-              <a href="/couvreur-poissy">Poissy</a>
-              <a href="/couvreur-conflans-sainte-honorine">Conflans-Sainte-Honorine</a>
-              <a href="/couvreur-mantes-la-jolie">Mantes-la-Jolie</a>
-              <a href="/couvreur-rambouillet">Rambouillet</a>
-              <a href="/couvreur-houilles">Houilles</a>
-              <a href="/couvreur-sartrouville">Sartrouville</a>
-              <a href="/couvreur-chatou">Chatou</a>
-            </div>
-          </div>
+          <a href="pages-locales-78.html">📍 Yvelines (78)</a>
+          <a href="pages-locales-94.html">📍 Val-de-Marne (94)</a>
+        </div>
 
           <div class="menuSubGroup">
             <div class="menuSubTitle">📍 Val-de-Marne (94)</div>
