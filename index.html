@@ -82,6 +82,7 @@
     .btn.ghost{background:#fff;border:1px solid var(--border);color:var(--text)}
     .btn.ghost.active{outline:3px solid rgba(22,119,255,.18)}
 
+
     .trustBar{
       background:var(--navy);
       color:#fff;
@@ -92,55 +93,33 @@
       display:flex;
       align-items:center;
       justify-content:center;
+      flex-wrap:wrap;
       gap:6px 18px;
-      padding:7px 10px;
+      padding:7px 0;
       font-size:.82rem;
       line-height:1.25;
       font-weight:750;
       text-align:center;
     }
-    .trustItem{
-      display:inline-flex;
-      align-items:center;
-      gap:6px;
-      white-space:nowrap;
-    }
-    .trustItem a{
-      color:#fff;
-      text-decoration:none;
-    }
+    .trustItem{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+    .trustItem a{color:#fff;text-decoration:none}
     .trustItem a:hover{text-decoration:underline}
     .trustSep{opacity:.38}
-    .trustMobile{display:none}
 
     @media (max-width:720px){
       .trustBarInner{
-        min-height:31px;
-        padding:6px 5px;
-        font-size:clamp(.61rem,2.75vw,.72rem);
-        line-height:1;
-        white-space:nowrap;
-        overflow:hidden;
+        display:grid;
+        grid-template-columns:1fr 1fr;
+        gap:5px 10px;
+        padding:7px 0;
+        font-size:.72rem;
       }
-      .trustDesktop{display:none}
-      .trustMobile{
-        display:block;
-        width:100%;
-        white-space:nowrap;
-        text-align:center;
-        letter-spacing:-.01em;
-      }
+      .trustItem{justify-content:center;white-space:normal}
+      .trustSep{display:none}
     }
-
-    @media (max-width:350px){
-      .trustBarInner{
-        font-size:.59rem;
-        padding-left:2px;
-        padding-right:2px;
-      }
-    }
-
-.trustPhoneMobile{display:none}
+    @media (max-width:420px){
+      .trustBarInner{grid-template-columns:1fr;font-size:.7rem;gap:4px}
+      .trustPhoneMobile{display:none}
     }
 
     header{
@@ -510,7 +489,21 @@
     @media(max-width:820px){.local-departments{grid-template-columns:1fr}}
     @media(max-width:520px){.local-links{grid-template-columns:1fr}}
 
-  </style>
+  
+.trust-desktop{display:flex;justify-content:center;align-items:center;gap:10px;flex-wrap:nowrap}
+.trust-mobile{display:none}
+@media(max-width:768px){
+  .trust-desktop{display:none!important}
+  .trust-mobile{
+    display:block;
+    width:100%;
+    text-align:center;
+    white-space:nowrap;
+    font-size:clamp(.62rem,2.8vw,.72rem);
+  }
+}
+
+</style>
 
   <script type="application/ld+json">
   {
@@ -551,17 +544,19 @@
 <body>
 <header>
   <div class="trustBar" aria-label="Informations légales et contact">
-    <div class="container trustBarInner">
-      <div class="trustDesktop">
-        <span class="trustItem">🛡️ Décennale <strong>QBE Europe SA/NV</strong></span>
-        <span class="trustSep" aria-hidden="true">•</span>
-        <span class="trustItem">SIRET <strong>851 484 717 00018</strong></span>
-        <span class="trustSep" aria-hidden="true">•</span>
-        <span class="trustItem">☎️ <a href="tel:+33184163881">01 84 16 38 81</a></span>
-      </div>
-      <div class="trustMobile">🛡️ QBE Europe SA/NV&nbsp; • &nbsp;SIRET 851 484 717 00018</div>
+  <div class="container trustBarInner">
+    <div class="trust-desktop">
+      🛡️ <strong>Décennale QBE Europe SA/NV</strong>
+      <span class="trustSep">•</span>
+      <strong>SIRET 851 484 717 00018</strong>
+      <span class="trustSep">•</span>
+      ☎️ <a href="tel:+33184163881">01 84 16 38 81</a>
+    </div>
+    <div class="trust-mobile">
+      🛡️ <strong>QBE Europe SA/NV</strong> <span class="trustSep">•</span> <strong>SIRET 851 484 717 00018</strong>
     </div>
   </div>
+</div>
   <nav class="nav container">
     <a class="brand" href="#top" aria-label="Retour à l’accueil">
       <img src="https://j2bcouverture-del.github.io/j2b-couverture-paris/logo.png?v=1" alt="J2B Couverture">
