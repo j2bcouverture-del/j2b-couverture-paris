@@ -497,7 +497,14 @@
     @media(max-width:820px){.local-departments{grid-template-columns:1fr}}
     @media(max-width:520px){.local-links{grid-template-columns:1fr}}
 
-  </style>
+  
+@media (max-width:768px){
+  .phone-fixed{
+    display:none !important;
+  }
+}
+
+</style>
 
   <script type="application/ld+json">
   {
@@ -543,7 +550,7 @@
       <span class="trustSep" aria-hidden="true">•</span>
       <span class="trustItem">SIRET <strong>851 484 717 00018</strong></span>
       <span class="trustSep" aria-hidden="true">•</span>
-      <span class="trustItem trustPhoneMobile">☎️ <a href="tel:+33184163881">01 84 16 38 81</a></span>
+      <span class="phone-fixed" class="trustItem trustPhoneMobile">☎️ <a href="tel:+33184163881">01 84 16 38 81</a></span>
     </div>
   </div>
   <nav class="nav container">
@@ -627,7 +634,7 @@
         <p class="muted">Contactez directement J2B Couverture. Devis gratuit et réponse rapide.</p>
 
         <a class="contactLine" href="tel:+33184163881">
-          <span class="contactIcon" aria-hidden="true">☎️</span>
+          <span class="phone-fixed" class="contactIcon" aria-hidden="true">☎️</span>
           <div><strong>01 84 16 38 81</strong><br><span class="muted small">Ligne fixe professionnelle</span></div>
         </a>
 
@@ -918,7 +925,7 @@
     <h3 id="phoneChoiceTitle">Quel numéro souhaitez-vous appeler ?</h3>
     <p>Les deux lignes joignent directement J2B Couverture.</p>
     <div class="phoneChoiceList">
-      <a class="phoneChoiceLink" href="tel:+33184163881"><span>☎️ Ligne fixe<small>Accueil téléphonique</small></span><strong>01 84 16 38 81</strong></a>
+      <a class="phoneChoiceLink" href="tel:+33184163881"><span class="phone-fixed">☎️ Ligne fixe<small>Accueil téléphonique</small></span><strong>01 84 16 38 81</strong></a>
       <a class="phoneChoiceLink" href="tel:+33601462612"><span>📱 Portable<small>Urgences et déplacements</small></span><strong>06 01 46 26 12</strong></a>
     </div>
   </div>
