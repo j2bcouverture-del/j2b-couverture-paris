@@ -298,13 +298,82 @@
   .j2b-local-actions .dept{background:#e9f2fb;color:#0a4f86;border:1px solid #bad2e8}
   @media(max-width:760px){.j2b-local-grid{grid-template-columns:1fr}.j2b-local-card{padding:18px}.j2b-local-links{padding-bottom:28px}}
 
+
+
+/* Bandeau de confiance identique au site principal */
+.topbar{
+  background:#071426 !important;
+  color:#fff !important;
+  border-bottom:1px solid rgba(255,255,255,.12) !important;
+}
+.topbar-inner{
+  min-height:38px !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  gap:0 !important;
+  padding:7px 0 !important;
+  text-align:center !important;
+}
+.local-trust-desktop{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  white-space:nowrap;
+  font-size:.82rem;
+  line-height:1.25;
+  font-weight:750;
+}
+.local-trust-desktop a{
+  color:#fff;
+  text-decoration:none;
+  font-weight:750;
+}
+.local-trust-sep{opacity:.38}
+.local-trust-mobile{display:none}
+
+@media (max-width:768px){
+  .topbar-inner{
+    min-height:31px !important;
+    padding:6px 4px !important;
+    width:100%;
+  }
+  .local-trust-desktop{display:none !important}
+  .local-trust-mobile{
+    display:block !important;
+    width:100%;
+    color:#fff;
+    text-align:center;
+    white-space:nowrap;
+    font-size:clamp(.60rem,2.75vw,.72rem);
+    line-height:1.1;
+    letter-spacing:-.015em;
+    font-weight:750;
+  }
+}
+@media (max-width:420px){
+  .topbar-inner{padding:6px 2px !important}
+  .local-trust-mobile{font-size:clamp(.58rem,2.7vw,.67rem)}
+}
+
 </style>
 </head>
 <body>
-  <div class="topbar">
+  <div class="topbar" aria-label="Informations légales et contact">
     <div class="container topbar-inner">
-      <span><strong>J2B Couverture</strong> — Maisons-Alfort et Val-de-Marne</span>
-      <span>Devis gratuit • Réponse rapide • <a class="track-call" href="tel:0601462612">06 01 46 26 12</a></span>
+      <div class="local-trust-desktop">
+        🛡️ <strong>Décennale QBE Europe SA/NV</strong>
+        <span class="local-trust-sep">•</span>
+        <strong>SIRET 851 484 717 00018</strong>
+        <span class="local-trust-sep">•</span>
+        ☎️ <a href="tel:+33184163881">01 84 16 38 81</a>
+      </div>
+      <div class="local-trust-mobile">
+        🛡️ <strong>QBE Europe SA/NV</strong>
+        <span class="local-trust-sep">•</span>
+        <strong>SIRET 851 484 717 00018</strong>
+      </div>
     </div>
   </div>
 
@@ -325,14 +394,7 @@
   </header>
 
   <main>
-    <!-- J2B-MAILLAGE: breadcrumb -->
-    <div class="container j2b-breadcrumb" aria-label="Fil d’Ariane">
-      <a href="index.html">Accueil</a> <span aria-hidden="true">›</span>
-      <a href="index.html#pages-locales">Pages locales</a> <span aria-hidden="true">›</span>
-      <span>Couvreur à Maisons-Alfort</span>
-    </div>
-
-    <section class="hero">
+<section class="hero">
       <div class="hero-media" aria-hidden="true">
         <img src="https://j2bcouverture-del.github.io/j2b-couverture-paris/temp1.JPG?v=1" alt="" fetchpriority="high">
       </div>
@@ -342,8 +404,9 @@
           <h1>Votre toiture mérite un travail <span>précis et durable.</span></h1>
           <p class="lead">Réparation de fuite, rénovation, zinguerie, démoussage, Velux et entretien de toiture à Maisons-Alfort, notamment dans les secteurs Charentonneau, Centre-ville, Les Juilliottes et Alfort.</p>
           <div class="hero-actions">
-            <a class="btn call track-call" href="tel:0601462612">📞 Appeler le 06 01 46 26 12</a>
-            <a class="btn light" href="#devis">Obtenir un devis gratuit</a>
+            <a class="btn primary track-call" href="tel:+33184163881">☎️ Fixe : 01 84 16 38 81</a>
+            <a class="btn call track-call" href="tel:+33601462612">📱 Portable : 06 01 46 26 12</a>
+            <a class="btn light" href="#devis">📩 Demander un devis</a>
           </div>
           <div class="hero-proof">
             <span class="proof-pill">✓ Devis gratuit</span>
