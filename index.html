@@ -82,6 +82,46 @@
     .btn.ghost{background:#fff;border:1px solid var(--border);color:var(--text)}
     .btn.ghost.active{outline:3px solid rgba(22,119,255,.18)}
 
+
+    .trustBar{
+      background:var(--navy);
+      color:#fff;
+      border-bottom:1px solid rgba(255,255,255,.12);
+    }
+    .trustBarInner{
+      min-height:38px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      flex-wrap:wrap;
+      gap:6px 18px;
+      padding:7px 0;
+      font-size:.82rem;
+      line-height:1.25;
+      font-weight:750;
+      text-align:center;
+    }
+    .trustItem{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+    .trustItem a{color:#fff;text-decoration:none}
+    .trustItem a:hover{text-decoration:underline}
+    .trustSep{opacity:.38}
+
+    @media (max-width:720px){
+      .trustBarInner{
+        display:grid;
+        grid-template-columns:1fr 1fr;
+        gap:5px 10px;
+        padding:7px 0;
+        font-size:.72rem;
+      }
+      .trustItem{justify-content:center;white-space:normal}
+      .trustSep{display:none}
+    }
+    @media (max-width:420px){
+      .trustBarInner{grid-template-columns:1fr;font-size:.7rem;gap:4px}
+      .trustPhoneMobile{display:none}
+    }
+
     header{
       position:sticky;
       top:0;
@@ -489,6 +529,15 @@
 
 <body>
 <header>
+  <div class="trustBar" aria-label="Informations légales et contact">
+    <div class="container trustBarInner">
+      <span class="trustItem">🛡️ Décennale <strong>QBE Europe SA/NV</strong></span>
+      <span class="trustSep" aria-hidden="true">•</span>
+      <span class="trustItem">SIRET <strong>851 484 717 00018</strong></span>
+      <span class="trustSep" aria-hidden="true">•</span>
+      <span class="trustItem trustPhoneMobile">☎️ <a href="tel:+33184163881">01 84 16 38 81</a></span>
+    </div>
+  </div>
   <nav class="nav container">
     <a class="brand" href="#top" aria-label="Retour à l’accueil">
       <img src="https://j2bcouverture-del.github.io/j2b-couverture-paris/logo.png?v=1" alt="J2B Couverture">
