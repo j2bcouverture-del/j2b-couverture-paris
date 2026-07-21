@@ -551,14 +551,10 @@
 }
 
 
-/* Masquer le bouton Urgence flottant sur mobile */
-@media (max-width:768px){
-  .urgence-btn,
-  .btn-urgence,
-  .floating-urgence,
-  #urgenceBtn,
-  #btnUrgence,
-  .emergency-btn{
+/* Masque uniquement le bouton rouge Urgence sur téléphone.
+   Le bouton bleu flottant d'appel reste visible. */
+@media (max-width:640px){
+  .urgence-call{
     display:none !important;
   }
 }
