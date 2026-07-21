@@ -338,10 +338,6 @@
     .mapLegend{display:flex;gap:10px;align-items:center;padding:10px 12px;border-top:1px solid var(--border)}
     .legendDot{width:14px;height:14px;border-radius:50%;background:var(--blue)}
 
-    .topContact{display:flex;align-items:center;gap:10px;margin-left:auto}
-    .topPhone{display:flex;flex-direction:column;align-items:flex-end;line-height:1.1}
-    .topPhone small{font-size:.72rem;color:var(--muted);font-weight:800}
-    .topPhone strong{font-size:.96rem;color:var(--navy)}
     .phoneActions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}
     .phoneActions .btn{width:100%;white-space:normal;line-height:1.2;text-align:center}
     .phoneActions small{display:block;font-size:.74rem;font-weight:700;opacity:.85;margin-top:3px}
@@ -383,7 +379,6 @@
     }
     @media(max-width:640px){
       .brand img{height:55px}
-      .topContact{display:none}
       .phoneActions{grid-template-columns:1fr}
       .hero h1{font-size:2.55rem}
       .hero .cta{display:grid}
@@ -498,11 +493,6 @@
     <a class="brand" href="#top" aria-label="Retour à l’accueil">
       <img src="https://j2bcouverture-del.github.io/j2b-couverture-paris/logo.png?v=1" alt="J2B Couverture">
     </a>
-
-    <div class="topContact" aria-label="Coordonnées téléphoniques">
-      <a class="topPhone" href="tel:+33184163881"><small>Ligne fixe</small><strong>01 84 16 38 81</strong></a>
-      <a class="topPhone" href="tel:+33601462612"><small>Portable</small><strong>06 01 46 26 12</strong></a>
-    </div>
 
     <div class="menuWrap">
       <button class="menuBtn" id="menuBtn" type="button" aria-expanded="false" aria-controls="menuPanel" aria-label="Ouvrir le menu">
@@ -854,6 +844,10 @@
     <div><strong>J2B Couverture</strong> — Intervention Paris & Île-de-France</div>
     <div style="margin-top:8px">☎ Ligne fixe : <a href="tel:+33184163881">01 84 16 38 81</a> • 📱 Portable : <a href="tel:+33601462612">06 01 46 26 12</a></div>
     <div style="margin-top:8px">Email : <a href="mailto:j2bcouverture.idf@gmail.com">j2bcouverture.idf@gmail.com</a></div>
+    <div style="margin-top:18px;padding-top:16px;border-top:1px solid rgba(255,255,255,.16);line-height:1.8;font-size:.95rem">
+      <div>🛡️ Assurance décennale : <strong>QBE Europe SA/NV</strong></div>
+      <div>SIRET : <strong>851 484 717 00018</strong></div>
+    </div>
     <div style="margin-top:8px;opacity:.9;font-size:.95rem">© <span id="year"></span> — Tous droits réservés.</div>
   </div>
 </footer>
