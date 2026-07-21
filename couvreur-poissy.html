@@ -420,14 +420,22 @@
   }
   .local-trust-desktop{display:none !important}
   .local-trust-mobile{
-    display:block !important;
+    display:flex !important;
+    align-items:center;
+    justify-content:center;
+    gap:4px;
     width:100%;
     color:#fff;
     text-align:center;
     white-space:nowrap;
-    font-size:clamp(.60rem,2.75vw,.72rem);
+    font-size:clamp(.50rem,2.25vw,.66rem);
     line-height:1.1;
-    letter-spacing:-.015em;
+    letter-spacing:-.025em;
+    font-weight:750;
+  }
+  .local-trust-mobile a{
+    color:#fff;
+    text-decoration:none;
     font-weight:750;
   }
 }
@@ -452,6 +460,8 @@
         🛡️ <strong>QBE Europe SA/NV</strong>
         <span class="local-trust-sep">•</span>
         <strong>SIRET 851 484 717 00018</strong>
+        <span class="local-trust-sep">•</span>
+        ☎️ <a href="tel:+33184163881">01 84 16 38 81</a>
       </div>
     </div>
   </div>
