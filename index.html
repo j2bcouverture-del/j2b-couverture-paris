@@ -503,6 +503,53 @@
   }
 }
 
+
+/* Correctif définitif du bandeau de confiance */
+.trust-desktop{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:10px;
+  flex-wrap:nowrap;
+  white-space:nowrap;
+}
+.trust-mobile{display:none}
+
+@media (max-width:768px){
+  .trustBarInner{
+    display:flex !important;
+    grid-template-columns:none !important;
+    align-items:center !important;
+    justify-content:center !important;
+    width:100%;
+    min-height:31px;
+    padding:6px 4px !important;
+    gap:0 !important;
+  }
+  .trust-desktop{display:none !important}
+  .trust-mobile{
+    display:block !important;
+    width:100%;
+    text-align:center;
+    white-space:nowrap;
+    font-size:clamp(.60rem,2.75vw,.72rem);
+    line-height:1.1;
+    letter-spacing:-.015em;
+  }
+}
+
+@media (max-width:420px){
+  .trustBarInner{
+    display:flex !important;
+    grid-template-columns:none !important;
+    gap:0 !important;
+    padding:6px 2px !important;
+  }
+  .trust-mobile{
+    font-size:clamp(.58rem,2.7vw,.67rem);
+  }
+}
+
 </style>
 
   <script type="application/ld+json">
