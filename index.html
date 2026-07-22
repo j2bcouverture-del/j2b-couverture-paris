@@ -613,6 +613,130 @@
     </div>
   </div>
 </div>
+<!-- ===== BANDEAU PROMOTION J2B COUVERTURE ===== -->
+<div id="promo-banner" role="banner" aria-label="Offre promotionnelle">
+    <div class="promo-content">
+        <span class="promo-label">OFFRE EXCEPTIONNELLE</span>
+
+        <span class="promo-text">
+            <strong>-10 %</strong> sur tout devis signé avant le
+            <strong>15 août 2026</strong>
+        </span>
+
+        <a href="#devis" class="promo-button">
+            Demander un devis
+        </a>
+    </div>
+</div>
+
+<style>
+#promo-banner{
+    position:sticky;
+    top:0;
+    z-index:99999;
+    width:100%;
+    background:linear-gradient(120deg,#111827 0%,#1f2937 55%,#111827 100%);
+    color:#fff;
+    font-family:Arial,Helvetica,sans-serif;
+    border-bottom:3px solid #f4b400;
+    box-shadow:0 5px 18px rgba(0,0,0,.25);
+}
+
+.promo-content{
+    max-width:1200px;
+    min-height:58px;
+    margin:0 auto;
+    padding:9px 18px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:18px;
+}
+
+.promo-label{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    padding:7px 11px;
+    background:#f4b400;
+    color:#111827;
+    border-radius:6px;
+    font-size:12px;
+    font-weight:900;
+    letter-spacing:.8px;
+    white-space:nowrap;
+}
+
+.promo-text{
+    font-size:17px;
+    font-weight:500;
+    line-height:1.35;
+    text-align:center;
+}
+
+.promo-text strong{
+    color:#ffd35c;
+    font-weight:900;
+}
+
+.promo-button{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    padding:10px 16px;
+    background:#fff;
+    color:#111827;
+    border-radius:7px;
+    text-decoration:none;
+    font-size:14px;
+    font-weight:800;
+    white-space:nowrap;
+    transition:.2s;
+}
+
+.promo-button:hover{
+    background:#f4b400;
+    transform:translateY(-2px);
+}
+
+@media(max-width:760px){
+    .promo-content{
+        flex-direction:column;
+        gap:6px;
+        padding:10px 12px;
+    }
+
+    .promo-label{
+        font-size:10px;
+        padding:5px 9px;
+    }
+
+    .promo-text{
+        font-size:14px;
+    }
+
+    .promo-button{
+        font-size:13px;
+        padding:8px 14px;
+    }
+}
+</style>
+
+<script>
+(function () {
+
+    const promoBanner = document.getElementById("promo-banner");
+
+    // Fin automatique de la promotion :
+    // le bandeau disparaît le 16 août 2026 à 00:00.
+    const finPromo = new Date("2026-08-15T23:59:59");
+
+    if (promoBanner && new Date() > finPromo) {
+        promoBanner.remove();
+    }
+
+})();
+</script>
   <nav class="nav container">
     <a class="brand" href="#top" aria-label="Retour à l’accueil">
       <img src="https://j2bcouverture-del.github.io/j2b-couverture-paris/logo.png?v=1" alt="J2B Couverture">
