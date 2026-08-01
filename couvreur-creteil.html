@@ -969,5 +969,361 @@
     });
   })();
   </script>
-  <script src="/whatsapp.js"></script></body>
+<!-- =========================================================
+J2B COUVERTURE — CONTACT FLOTTANT COMME LA PAGE D’ACCUEIL
+À coller une seule fois juste avant </body>
+========================================================== -->
+
+<style>
+/* Cache l’ancienne barre Appeler / Devis */
+.mobile-call{
+  display:none !important;
+}
+
+/* Fenêtre de choix du numéro */
+.j2b-phone-overlay{
+  position:fixed;
+  inset:0;
+  z-index:100000;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  background:rgba(4,15,29,.72);
+  backdrop-filter:blur(4px);
+  -webkit-backdrop-filter:blur(4px);
+}
+
+.j2b-phone-overlay.open{
+  display:flex;
+}
+
+.j2b-phone-box{
+  position:relative;
+  width:min(470px,100%);
+  padding:28px;
+  border-radius:24px;
+  background:#fff;
+  color:#0f172a;
+  box-shadow:0 28px 80px rgba(0,0,0,.30);
+}
+
+.j2b-phone-box h3{
+  margin:0 40px 8px 0;
+  font-size:1.45rem;
+  line-height:1.15;
+}
+
+.j2b-phone-box p{
+  margin:0 0 18px;
+  color:#526077;
+  line-height:1.5;
+}
+
+.j2b-phone-list{
+  display:grid;
+  gap:10px;
+}
+
+.j2b-phone-link{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  padding:15px;
+  border:1px solid #dbe4ee;
+  border-radius:15px;
+  background:#f8fafc;
+  color:#07192e;
+  text-decoration:none;
+  font-weight:900;
+}
+
+.j2b-phone-link:hover{
+  border-color:#2563eb;
+  background:#eef6ff;
+}
+
+.j2b-phone-link span{
+  display:block;
+}
+
+.j2b-phone-link small{
+  display:block;
+  margin-top:3px;
+  color:#526077;
+  font-weight:700;
+}
+
+.j2b-phone-close{
+  position:absolute;
+  top:12px;
+  right:12px;
+  width:38px;
+  height:38px;
+  border:0;
+  border-radius:50%;
+  background:#eef3f8;
+  color:#07192e;
+  font-size:22px;
+  cursor:pointer;
+}
+
+/* Boutons flottants */
+.j2b-float-call,
+.j2b-float-urgent{
+  position:fixed;
+  z-index:99998;
+  border:0;
+  color:#fff;
+  font:inherit;
+  font-weight:900;
+  cursor:pointer;
+}
+
+.j2b-float-call{
+  right:18px;
+  bottom:18px;
+  padding:13px 18px;
+  border-radius:999px;
+  background:#2563eb;
+  box-shadow:0 14px 35px rgba(37,99,235,.30);
+}
+
+.j2b-float-urgent{
+  left:50%;
+  bottom:18px;
+  transform:translateX(-50%);
+  width:min(540px,calc(100% - 190px));
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:14px;
+  padding:12px 20px;
+  border-radius:999px;
+  background:linear-gradient(135deg,#e22323,#b90f0f);
+  box-shadow:0 15px 36px rgba(185,15,15,.35);
+  text-align:center;
+}
+
+.j2b-float-urgent strong{
+  display:block;
+  font-size:17px;
+}
+
+.j2b-float-urgent small{
+  display:block;
+  font-size:13px;
+}
+
+/* Bouton WhatsApp */
+.j2b-whatsapp-float{
+  position:fixed;
+  right:18px;
+  bottom:76px;
+  z-index:99999;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:9px;
+  padding:13px 18px;
+  border-radius:999px;
+  background:#25d366;
+  color:#fff;
+  text-decoration:none;
+  font-weight:900;
+  box-shadow:0 14px 35px rgba(37,211,102,.35);
+  transition:transform .2s ease,background .2s ease;
+}
+
+.j2b-whatsapp-float:hover{
+  background:#1fb85a;
+  transform:translateY(-2px);
+}
+
+.j2b-whatsapp-float svg{
+  width:22px;
+  height:22px;
+  fill:currentColor;
+  flex:0 0 22px;
+}
+
+/* Version mobile */
+@media(max-width:640px){
+
+  body{
+    padding-bottom:calc(82px + env(safe-area-inset-bottom)) !important;
+  }
+
+  .j2b-float-urgent{
+    display:none !important;
+  }
+
+  .j2b-whatsapp-float{
+    left:12px;
+    right:calc(50% + 5px);
+    bottom:calc(14px + env(safe-area-inset-bottom));
+    padding:13px 8px;
+    border-radius:14px;
+    font-size:.9rem;
+  }
+
+  .j2b-float-call{
+    left:calc(50% + 5px);
+    right:12px;
+    bottom:calc(14px + env(safe-area-inset-bottom));
+    padding:13px 8px;
+    border-radius:14px;
+    text-align:center;
+  }
+
+  .j2b-phone-box{
+    padding:24px 18px 18px;
+  }
+
+  .j2b-phone-link{
+    align-items:flex-start;
+    flex-direction:column;
+    gap:7px;
+  }
+}
+</style>
+
+<a
+  class="j2b-whatsapp-float"
+  href="https://wa.me/33601462612?text=Bonjour%2C%20je%20vous%20contacte%20depuis%20le%20site%20J2B%20Couverture%20pour%20obtenir%20un%20devis%20gratuit.%0A%0A%F0%9F%93%8D%20Ville%20du%20chantier%20%3A%0A%F0%9F%8F%A0%20Travaux%20souhait%C3%A9s%20%3A%0A%F0%9F%93%B8%20Je%20peux%20vous%20transmettre%20des%20photos%20de%20la%20toiture.%0A%0AMerci."
+  target="_blank"
+  rel="noopener"
+  aria-label="Demander un devis sur WhatsApp"
+>
+  <svg viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M20.52 3.48A11.82 11.82 0 0 0 12.08 0C5.55 0 .24 5.31.24 11.84c0 2.09.55 4.13 1.59 5.92L.14 24l6.39-1.68a11.82 11.82 0 0 0 5.55 1.42h.01c6.52 0 11.83-5.31 11.83-11.84 0-3.16-1.23-6.13-3.4-8.42Zm-8.43 18.26h-.01a9.8 9.8 0 0 1-4.99-1.37l-.36-.21-3.79.99 1.01-3.69-.24-.38a9.79 9.79 0 1 1 8.38 4.66Zm5.37-7.34c-.29-.15-1.74-.86-2.01-.96-.27-.1-.47-.15-.66.15-.2.29-.76.96-.93 1.16-.17.2-.34.22-.64.07-1.73-.86-2.87-1.54-4.02-3.5-.3-.51.3-.47.86-1.56.1-.2.05-.37-.02-.52-.07-.15-.66-1.6-.91-2.19-.24-.58-.48-.5-.66-.51h-.56c-.2 0-.52.07-.79.37-.27.29-1.03 1.01-1.03 2.46s1.06 2.85 1.2 3.05c.15.2 2.08 3.18 5.04 4.46.7.3 1.25.48 1.68.62.71.22 1.35.19 1.86.12.57-.09 1.74-.71 1.99-1.4.24-.69.24-1.28.17-1.4-.07-.12-.27-.2-.56-.34Z"/>
+  </svg>
+
+  <span>WhatsApp</span>
+</a>
+
+<button
+  class="j2b-float-urgent j2b-phone-open"
+  type="button"
+  aria-label="Choisir un numéro pour appeler J2B Couverture"
+>
+  <span>📞</span>
+
+  <span>
+    <strong>Une urgence ?</strong>
+    <small>Choisir le numéro à appeler</small>
+  </span>
+
+  <span>📞</span>
+</button>
+
+<button
+  class="j2b-float-call j2b-phone-open"
+  type="button"
+>
+  📞 Appeler
+</button>
+
+<div
+  class="j2b-phone-overlay"
+  id="j2bPhoneOverlay"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="j2bPhoneTitle"
+>
+  <div class="j2b-phone-box">
+
+    <button
+      class="j2b-phone-close"
+      id="j2bPhoneClose"
+      type="button"
+      aria-label="Fermer"
+    >
+      ×
+    </button>
+
+    <h3 id="j2bPhoneTitle">
+      Quel numéro souhaitez-vous appeler ?
+    </h3>
+
+    <p>
+      Les deux lignes joignent directement J2B Couverture.
+    </p>
+
+    <div class="j2b-phone-list">
+
+      <a
+        class="j2b-phone-link track-call"
+        href="tel:+33184163881"
+      >
+        <span>
+          ☎️ Ligne fixe
+          <small>Accueil téléphonique</small>
+        </span>
+
+        <strong>01 84 16 38 81</strong>
+      </a>
+
+      <a
+        class="j2b-phone-link track-call"
+        href="tel:+33601462612"
+      >
+        <span>
+          📱 Portable
+          <small>Urgences et déplacements</small>
+        </span>
+
+        <strong>06 01 46 26 12</strong>
+      </a>
+
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+
+  const overlay = document.getElementById('j2bPhoneOverlay');
+  const closeBtn = document.getElementById('j2bPhoneClose');
+
+  function openPhone(){
+    if(!overlay) return;
+
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closePhone(){
+    if(!overlay) return;
+
+    overlay.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  document.querySelectorAll('.j2b-phone-open').forEach(function(button){
+    button.addEventListener('click', openPhone);
+  });
+
+  if(closeBtn){
+    closeBtn.addEventListener('click', closePhone);
+  }
+
+  if(overlay){
+    overlay.addEventListener('click', function(event){
+      if(event.target === overlay){
+        closePhone();
+      }
+    });
+  }
+
+  document.addEventListener('keydown', function(event){
+    if(event.key === 'Escape'){
+      closePhone();
+    }
+  });
+
+});
+</script>  
+</body>
 </html>
