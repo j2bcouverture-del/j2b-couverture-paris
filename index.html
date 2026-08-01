@@ -559,6 +559,56 @@
   }
 }
 
+/* WhatsApp */
+.btn.whatsapp{
+  background:#25d366;
+  color:#fff;
+  border:1px solid #25d366;
+}
+.btn.whatsapp:hover{
+  background:#1fb85a;
+  border-color:#1fb85a;
+}
+.whatsapp-float{
+  position:fixed;
+  right:18px;
+  bottom:76px;
+  z-index:1000;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:9px;
+  padding:13px 18px;
+  border-radius:999px;
+  background:#25d366;
+  color:#fff;
+  font-weight:900;
+  box-shadow:0 14px 35px rgba(37,211,102,.35);
+  transition:transform .2s ease,background .2s ease;
+}
+.whatsapp-float:hover{background:#1fb85a;transform:translateY(-2px)}
+.whatsapp-float svg{width:22px;height:22px;fill:currentColor;flex:0 0 22px}
+.whatsapp-after-form{margin-top:18px;text-align:center}
+.whatsapp-after-form .btn{margin-top:4px}
+
+@media(max-width:640px){
+  .whatsapp-float{
+    left:12px;
+    right:calc(50% + 5px);
+    bottom:14px;
+    padding:13px 8px;
+    border-radius:14px;
+    font-size:.9rem;
+  }
+  .call{
+    left:calc(50% + 5px);
+    right:12px;
+    bottom:14px;
+    border-radius:14px;
+    padding:13px 8px;
+  }
+}
+
 </style>
 
   <script type="application/ld+json">
@@ -809,6 +859,7 @@
           <a class="btn blue" href="tel:+33184163881">☎️ Fixe : 01 84 16 38 81</a>
           <a class="btn ghost" href="tel:+33601462612">📱 Portable : 06 01 46 26 12</a>
           <a class="btn red" href="#devis">📩 Demander un devis</a>
+          <a class="btn whatsapp whatsapp-link" href="https://wa.me/33601462612?text=Bonjour%2C%20je%20vous%20contacte%20depuis%20le%20site%20J2B%20Couverture%20pour%20obtenir%20un%20devis%20gratuit.%0A%0A%F0%9F%93%8D%20Ville%20du%20chantier%20%3A%0A%F0%9F%8F%A0%20Travaux%20souhait%C3%A9s%20%3A%0A%F0%9F%93%B8%20Je%20peux%20vous%20transmettre%20des%20photos%20de%20la%20toiture%20afin%20que%20vous%20puissiez%20%C3%A9tudier%20ma%20demande.%0A%0AMerci." target="_blank" rel="noopener">💬 Envoyer des photos</a>
           <a class="btn ghost" href="#services">Voir nos services</a>
         </div>
       </div>
@@ -841,6 +892,7 @@
           <a class="btn blue" href="tel:+33184163881">☎️ Ligne fixe<small>01 84 16 38 81</small></a>
           <a class="btn ghost" href="tel:+33601462612">📱 Portable<small>06 01 46 26 12</small></a>
         </div>
+        <a class="btn whatsapp whatsapp-link" style="margin-top:10px" href="https://wa.me/33601462612?text=Bonjour%2C%20je%20vous%20contacte%20depuis%20le%20site%20J2B%20Couverture%20pour%20obtenir%20un%20devis%20gratuit.%0A%0A%F0%9F%93%8D%20Ville%20du%20chantier%20%3A%0A%F0%9F%8F%A0%20Travaux%20souhait%C3%A9s%20%3A%0A%F0%9F%93%B8%20Je%20peux%20vous%20transmettre%20des%20photos%20de%20la%20toiture%20afin%20que%20vous%20puissiez%20%C3%A9tudier%20ma%20demande.%0A%0AMerci." target="_blank" rel="noopener">💬 Demander un devis sur WhatsApp</a>
         <a class="btn ghost" style="margin-top:10px" href="#devis">Recevoir un devis gratuit</a>
       </aside>
     </div>
@@ -1007,6 +1059,10 @@
         <button class="btn blue full" type="submit">📩 Envoyer la demande</button>
         <p class="muted small full" id="formHint"></p>
       </form>
+      <div class="whatsapp-after-form">
+        <p class="muted small">Vous préférez nous envoyer directement des photos de votre toiture ?</p>
+        <a class="btn whatsapp whatsapp-link" href="https://wa.me/33601462612?text=Bonjour%2C%20je%20vous%20contacte%20depuis%20le%20site%20J2B%20Couverture%20pour%20obtenir%20un%20devis%20gratuit.%0A%0A%F0%9F%93%8D%20Ville%20du%20chantier%20%3A%0A%F0%9F%8F%A0%20Travaux%20souhait%C3%A9s%20%3A%0A%F0%9F%93%B8%20Je%20peux%20vous%20transmettre%20des%20photos%20de%20la%20toiture%20afin%20que%20vous%20puissiez%20%C3%A9tudier%20ma%20demande.%0A%0AMerci." target="_blank" rel="noopener">💬 Envoyer ma demande sur WhatsApp</a>
+      </div>
     </div>
   </section>
 
@@ -1099,6 +1155,11 @@
     <div style="margin-top:8px;opacity:.9;font-size:.95rem">© <span id="year"></span> — Tous droits réservés.</div>
   </div>
 </footer>
+
+<a class="whatsapp-float whatsapp-link" href="https://wa.me/33601462612?text=Bonjour%2C%20je%20vous%20contacte%20depuis%20le%20site%20J2B%20Couverture%20pour%20obtenir%20un%20devis%20gratuit.%0A%0A%F0%9F%93%8D%20Ville%20du%20chantier%20%3A%0A%F0%9F%8F%A0%20Travaux%20souhait%C3%A9s%20%3A%0A%F0%9F%93%B8%20Je%20peux%20vous%20transmettre%20des%20photos%20de%20la%20toiture%20afin%20que%20vous%20puissiez%20%C3%A9tudier%20ma%20demande.%0A%0AMerci." target="_blank" rel="noopener" aria-label="Demander un devis sur WhatsApp">
+  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.52 3.48A11.82 11.82 0 0 0 12.08 0C5.55 0 .24 5.31.24 11.84c0 2.09.55 4.13 1.59 5.92L.14 24l6.39-1.68a11.82 11.82 0 0 0 5.55 1.42h.01c6.52 0 11.83-5.31 11.83-11.84 0-3.16-1.23-6.13-3.4-8.42Zm-8.43 18.26h-.01a9.8 9.8 0 0 1-4.99-1.37l-.36-.21-3.79.99 1.01-3.69-.24-.38a9.79 9.79 0 1 1 8.38 4.66Zm5.37-7.34c-.29-.15-1.74-.86-2.01-.96-.27-.1-.47-.15-.66.15-.2.29-.76.96-.93 1.16-.17.2-.34.22-.64.07-1.73-.86-2.87-1.54-4.02-3.5-.3-.51.3-.47.86-1.56.1-.2.05-.37-.02-.52-.07-.15-.66-1.6-.91-2.19-.24-.58-.48-.5-.66-.51h-.56c-.2 0-.52.07-.79.37-.27.29-1.03 1.01-1.03 2.46s1.06 2.85 1.2 3.05c.15.2 2.08 3.18 5.04 4.46.7.3 1.25.48 1.68.62.71.22 1.35.19 1.86.12.57-.09 1.74-.71 1.99-1.4.24-.69.24-1.28.17-1.4-.07-.12-.27-.2-.56-.34Z"/></svg>
+  <span>WhatsApp</span>
+</a>
 
 <button class="urgence-call phoneChoiceOpen" type="button" aria-label="Choisir un numéro pour appeler J2B Couverture"><span>📞</span><span><strong>Une urgence ?</strong><small>Choisir le numéro à appeler</small></span><span>📞</span></button>
 <button class="call phoneChoiceOpen" type="button">📞 Appeler</button>
@@ -1350,14 +1411,22 @@ document.addEventListener("DOMContentLoaded", function(){
     buildDots(); render(); restart();
   }
 
-  /* Google Analytics : un seul événement par clic téléphone */
+  /* Google Analytics : contacts */
   document.addEventListener("click", function(e){
-    const link = e.target.closest('a[href^="tel:"]');
-    if(!link) return;
-    if(typeof window.gtag === "function"){
+    const telLink = e.target.closest('a[href^="tel:"]');
+    if(telLink && typeof window.gtag === "function"){
       window.gtag("event","click_appel",{
         event_category:"Contact",
-        event_label:link.getAttribute("href").replace("tel:",""),
+        event_label:telLink.getAttribute("href").replace("tel:",""),
+        value:1
+      });
+    }
+
+    const whatsappLink = e.target.closest(".whatsapp-link");
+    if(whatsappLink && typeof window.gtag === "function"){
+      window.gtag("event","click_whatsapp",{
+        event_category:"Contact",
+        event_label:"Devis WhatsApp",
         value:1
       });
     }
@@ -1650,6 +1719,26 @@ document.addEventListener("DOMContentLoaded", function(){
      ===================================================== */
 
   document.addEventListener("click", function(event){
+    const whatsapp = event.target.closest(".whatsapp-link");
+
+    if(whatsapp){
+      envoyerNotification(
+        "Clic sur WhatsApp - " + nomPage,
+        "Le visiteur a ouvert une demande WhatsApp." +
+        "\nTemps passé avant le clic : " +
+        calculerDuree() +
+        "\nDéfilement atteint : " +
+        pourcentageMaximum +
+        " %" +
+        "\n\n" +
+        informationsPage(),
+        "speech_balloon,telephone,hammer",
+        "high"
+      );
+
+      return;
+    }
+
     const tel = event.target.closest('a[href^="tel:"]');
 
     if(tel){
